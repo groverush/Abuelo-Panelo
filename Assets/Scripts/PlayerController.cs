@@ -19,6 +19,15 @@ public class PlayerController : MonoBehaviour
     public GameObject objetoTransportado;
     public GameObject animal; // Referencia al burro/burra
 
+
+    [Header("Límites de Movimiento")]
+    [SerializeField] private float minX = -450f;
+    [SerializeField] private float maxX = 450f;
+    [SerializeField] private float minY = -100f;
+    [SerializeField] private float maxY = 20f;
+    [SerializeField] private float minZ = -450f;
+    [SerializeField] private float maxZ = 450f;
+
     private Caña cañaActual;
     private Transform destinoDeposito;
 
@@ -40,6 +49,7 @@ public class PlayerController : MonoBehaviour
         {
             LlamarAnimal();
         }
+        LimitarMovimiento();
     }
 
     public void Mover ()
@@ -50,6 +60,15 @@ public class PlayerController : MonoBehaviour
         Vector3 movimiento = new Vector3(0, 0, v).normalized;
         transform.Translate(movimiento * velocidad * Time.deltaTime);
         transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * h);
+    }
+    private void LimitarMovimiento ()
+    {
+        Vector3 pos = transform.position;
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        pos.y = Mathf.Clamp(pos.y, minY, maxY);
+        pos.z = Mathf.Clamp(pos.z, minZ, maxZ);
+        transform.position = pos;
+        
     }
 
     public void Cortar ( Caña caña )
