@@ -226,7 +226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 630541544}
-  offset: {x: 0, y: 4, z: -9.1}
+  offset: {x: 0, y: 4, z: -16}
 --- !u!114 &140732837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,6 +274,11 @@ MonoBehaviour:
 --- !u!1 &630541544 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3836151608830369288, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
+  m_PrefabInstance: {fileID: 146548144630403950}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &630541548 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7817368223376368972, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
   m_PrefabInstance: {fileID: 146548144630403950}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &649032731
@@ -512,6 +517,22 @@ PrefabInstance:
     - target: {fileID: 3836151608830369288, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5667749474690138499, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 630541548}
+    - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
+      propertyPath: velocidad
+      value: 10.98
+      objectReference: {fileID: 0}
+    - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
+      propertyPath: velocidadGiro
+      value: 107.1
       objectReference: {fileID: 0}
     - target: {fileID: 8767439575859258497, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: m_LocalPosition.x

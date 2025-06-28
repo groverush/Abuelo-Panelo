@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Caña : MonoBehaviour
+public class Sugarcane : MonoBehaviour
 {
     public float resistencia = 20f;
 
