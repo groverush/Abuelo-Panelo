@@ -20,20 +20,17 @@ public class PlayerController : MonoBehaviour
     public GameObject animal; // Referencia al burro/burra
 
 
-    [Header("Límites de Movimiento")]
-    [SerializeField] private float minX = -450f;
-    [SerializeField] private float maxX = 450f;
-    [SerializeField] private float minY = -100f;
-    [SerializeField] private float maxY = 20f;
-    [SerializeField] private float minZ = -450f;
-    [SerializeField] private float maxZ = 450f;
-
     [SerializeField] private Animator animator; // Asegúrate de asignarlo en el Inspector
 
+<<<<<<< HEAD
+    [SerializeField] private Animator animator; // Asegúrate de asignarlo en el Inspector
+
+=======
+>>>>>>> SebasDev
     private Sugarcane sugarcaneActual;
     private Transform destinoDeposito;
 
-    void Update ()
+    void FixedUpdate ()
     {
         Mover();
 
@@ -51,7 +48,6 @@ public class PlayerController : MonoBehaviour
         {
             LlamarAnimal();
         }
-        LimitarMovimiento();
     }
 
 
@@ -71,6 +67,7 @@ public class PlayerController : MonoBehaviour
 
         // Actualiza el parámetro del Animator
         animator.SetFloat("Speed_f", speed);
+<<<<<<< HEAD
     }
 
     private void LimitarMovimiento ()
@@ -81,22 +78,35 @@ public class PlayerController : MonoBehaviour
         pos.z = Mathf.Clamp(pos.z, minZ, maxZ);
         transform.position = pos;
         
+=======
+>>>>>>> SebasDev
     }
 
     public void Cortar ( Sugarcane sugarcane )
     {
         if (!estaCortando)
+<<<<<<< HEAD
             StartCoroutine(CorteCaña(sugarcane));
     }
 
     private IEnumerator CorteCaña ( Sugarcane sugarcane )
+=======
+            StartCoroutine(CorteSugarcane(sugarcane));
+    }
+
+    private IEnumerator CorteSugarcane ( Sugarcane sugarcane )
+>>>>>>> SebasDev
     {
         estaCortando = true;
         yield return new WaitForSeconds(2f);
 
         sugarcane.ReducirResistencia(fuerza);
         if (sugarcane.EstaCortada())
+<<<<<<< HEAD
             Debug.Log("Caña cortada.");
+=======
+            Debug.Log("Sugarcane cuted");
+>>>>>>> SebasDev
 
         estaCortando = false;
     }
@@ -145,7 +155,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter ( Collider other )
     {
-        if (other.CompareTag("Caña"))
+        if (other.CompareTag("Sugarcane"))
         {
             sugarcaneActual = other.GetComponent<Sugarcane>();
         }
@@ -163,7 +173,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit ( Collider other )
     {
+<<<<<<< HEAD
         if (other.CompareTag("Caña"))
+=======
+        if (other.CompareTag("Sugarcane"))
+>>>>>>> SebasDev
             sugarcaneActual = null;
 
         if (other.CompareTag("Destino"))
