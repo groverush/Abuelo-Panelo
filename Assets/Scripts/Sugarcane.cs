@@ -2,23 +2,42 @@ using UnityEngine;
 
 public class Sugarcane : MonoBehaviour
 {
-    public float resistencia = 20f;
+    public float resistencia = 30f;
+    public GameObject piezaDeCanaPrefab;
+    public float fuerzaPorGolpe = 10f;
+
+    private void OnTriggerEnter ( Collider other )
+    {
+        if (other.CompareTag("Machete") && PlayerController.EstaCortando)
+        {
+            ReducirResistencia(fuerzaPorGolpe);
+        }
+    }
 
     public void ReducirResistencia ( float cantidad )
     {
         resistencia -= cantidad;
-        if (resistencia <= 0)
-            CortarCompletada();
+        if (resistencia <= 0f)
+        {
+            CortarCompleto();
+        }
     }
 
     public bool EstaCortada ()
     {
-        return resistencia <= 0;
+        return resistencia <= 0f;
     }
 
-    private void CortarCompletada ()
+    private void CortarCompleto ()
     {
-        Debug.Log("¡La caña fue cortada!");
-        // Puedes instanciar un "item" recolectable aquí
+        Debug.Log("✅ ¡Caña completamente cortada!");
+
+        if (piezaDeCanaPrefab != null)
+        {
+            // Instanciamos la pieza en una posición levemente elevada
+            Instantiate(piezaDeCanaPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity);
+        }
+
+        Destroy(gameObject);
     }
 }

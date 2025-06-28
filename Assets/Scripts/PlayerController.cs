@@ -17,21 +17,45 @@ public class PlayerController : MonoBehaviour
     [Header("Referencias")]
     public Transform mano;
     public GameObject objetoTransportado;
-    public GameObject animal; // Referencia al burro/burra
+    public GameObject animal;
 
-
-    [SerializeField] private Animator animator; // Aseg�rate de asignarlo en el Inspector
+    [Header("Visual")]
+    public Transform meshTransform;
+    [SerializeField] private Animator animator;
 
     private Sugarcane sugarcaneActual;
     private Transform destinoDeposito;
 
-    void FixedUpdate()
+    public static bool EstaCortando { get; private set; }
+
+    // ✅ Sistema de cañas recolectadas
+    private int canasRecolectadas = 0;
+    private const int maxCanas = 5;
+
+    void Start ()
+    {
+        if (animator == null)
+            animator = GetComponent<Animator>();
+    }
+
+    void FixedUpdate ()
     {
         Mover();
 
-        if (Input.GetKeyDown(KeyCode.C) && sugarcaneActual != null)
+        // 🔁 Animación de corte mientras se mantenga "C"
+        bool cortando = Input.GetKey(KeyCode.C);
+        animator.SetBool("Cut_b", cortando);
+        EstaCortando = cortando;
+
+        if (cortando && !estaCortando)
         {
-            Cortar(sugarcaneActual);
+            InvokeRepeating(nameof(RealizarCorte), 0f, 1.5f);
+            estaCortando = true;
+        }
+        else if (!cortando && estaCortando)
+        {
+            CancelInvoke(nameof(RealizarCorte));
+            estaCortando = false;
         }
 
         if (Input.GetKeyDown(KeyCode.E) && destinoDeposito != null)
@@ -45,44 +69,49 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-    public void Mover()
+    public void Mover ()
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
         Vector3 movimiento = new Vector3(0, 0, v).normalized;
-
-        // Movimiento real del personaje
         transform.Translate(movimiento * velocidad * Time.deltaTime);
         transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * h);
 
-        // Calcula la velocidad como magnitud del vector de entrada
-        float speed = new Vector2(h, v).magnitude;
+        // Rotación del cuerpo
+        if (v < 0)
+            meshTransform.localRotation = Quaternion.Euler(0, 180, 0);
+        else if (v > 0)
+            meshTransform.localRotation = Quaternion.identity;
 
-        // Actualiza el par�metro del Animator
+        // Animaciones
+        float speed = Mathf.Clamp(Mathf.Abs(v), 0, 0.5f);
         animator.SetFloat("Speed_f", speed);
+
+        if (!animator.GetBool("Cut_b"))
+        {
+            float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), h, Time.deltaTime * 5f);
+            animator.SetFloat("Head_Horizontal_f", giroCabeza);
+        }
+        else
+        {
+            animator.SetFloat("Head_Horizontal_f", 0f);
+        }
     }
 
-    public void Cortar(Sugarcane sugarcane)
+    private void RealizarCorte ()
     {
-        if (!estaCortando)
-            StartCoroutine(CorteSugarcane(sugarcane));
+        if (sugarcaneActual != null)
+        {
+            sugarcaneActual.ReducirResistencia(fuerza);
+            if (sugarcaneActual.EstaCortada())
+            {
+                Debug.Log("✅ Caña cortada.");
+            }
+        }
     }
 
-    private IEnumerator CorteSugarcane(Sugarcane sugarcane)
-    {
-        estaCortando = true;
-        yield return new WaitForSeconds(2f);
-
-        sugarcane.ReducirResistencia(fuerza);
-        if (sugarcane.EstaCortada())
-            Debug.Log("Sugarcane cuted");
-
-        estaCortando = false;
-    }
-
-    public void Recolectar(GameObject item)
+    public void Recolectar ( GameObject item )
     {
         if (cargaActual < capacidadCarga && objetoTransportado == null)
         {
@@ -97,21 +126,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void Depositar(Transform destino)
+    public void Depositar ( Transform destino )
     {
         if (objetoTransportado != null)
         {
             Item datos = objetoTransportado.GetComponent<Item>();
-
             objetoTransportado.transform.SetParent(destino);
             objetoTransportado.transform.position = destino.position;
             cargaActual -= datos.peso;
-
             objetoTransportado = null;
         }
     }
 
-    public void LlamarAnimal()
+    public void LlamarAnimal ()
     {
         if (animal != null)
         {
@@ -119,12 +146,31 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void EntregarPedido()
+    public void EntregarPedido ()
     {
-        Debug.Log("Pedido entregado a la abuela.");
+        Debug.Log("📦 Pedido entregado a la abuela.");
     }
 
-    private void OnTriggerEnter(Collider other)
+    // ✅ Recolección de cañas (prefabs tipo pieza)
+    public bool PuedeRecolectarCana ()
+    {
+        return canasRecolectadas < maxCanas;
+    }
+
+    public void RecolectarCana ()
+    {
+        if (PuedeRecolectarCana())
+        {
+            canasRecolectadas++;
+            Debug.Log($"🌱 Cañas recolectadas: {canasRecolectadas} / {maxCanas}");
+        }
+        else
+        {
+            Debug.Log("🚫 Límite de cañas alcanzado.");
+        }
+    }
+
+    private void OnTriggerEnter ( Collider other )
     {
         if (other.CompareTag("Sugarcane"))
         {
@@ -142,7 +188,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnTriggerExit ( Collider other )
     {
         if (other.CompareTag("Sugarcane"))
             sugarcaneActual = null;
