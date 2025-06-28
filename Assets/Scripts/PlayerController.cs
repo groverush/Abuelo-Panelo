@@ -28,16 +28,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float minZ = -450f;
     [SerializeField] private float maxZ = 450f;
 
-    private Caña cañaActual;
+    [SerializeField] private Animator animator; // Asegúrate de asignarlo en el Inspector
+
+    private Sugarcane sugarcaneActual;
     private Transform destinoDeposito;
 
     void Update ()
     {
         Mover();
 
-        if (Input.GetKeyDown(KeyCode.C) && cañaActual != null)
+        if (Input.GetKeyDown(KeyCode.C) && sugarcaneActual != null)
         {
-            Cortar(cañaActual);
+            Cortar(sugarcaneActual);
         }
 
         if (Input.GetKeyDown(KeyCode.E) && destinoDeposito != null)
@@ -52,15 +54,25 @@ public class PlayerController : MonoBehaviour
         LimitarMovimiento();
     }
 
+
     public void Mover ()
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
         Vector3 movimiento = new Vector3(0, 0, v).normalized;
+
+        // Movimiento real del personaje
         transform.Translate(movimiento * velocidad * Time.deltaTime);
         transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * h);
+
+        // Calcula la velocidad como magnitud del vector de entrada
+        float speed = new Vector2(h, v).magnitude;
+
+        // Actualiza el parámetro del Animator
+        animator.SetFloat("Speed_f", speed);
     }
+
     private void LimitarMovimiento ()
     {
         Vector3 pos = transform.position;
@@ -71,19 +83,19 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    public void Cortar ( Caña caña )
+    public void Cortar ( Sugarcane sugarcane )
     {
         if (!estaCortando)
-            StartCoroutine(CorteCaña(caña));
+            StartCoroutine(CorteCaña(sugarcane));
     }
 
-    private IEnumerator CorteCaña ( Caña caña )
+    private IEnumerator CorteCaña ( Sugarcane sugarcane )
     {
         estaCortando = true;
         yield return new WaitForSeconds(2f);
 
-        caña.ReducirResistencia(fuerza);
-        if (caña.EstaCortada())
+        sugarcane.ReducirResistencia(fuerza);
+        if (sugarcane.EstaCortada())
             Debug.Log("Caña cortada.");
 
         estaCortando = false;
@@ -135,7 +147,7 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("Caña"))
         {
-            cañaActual = other.GetComponent<Caña>();
+            sugarcaneActual = other.GetComponent<Sugarcane>();
         }
 
         if (other.CompareTag("Destino"))
@@ -152,7 +164,7 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerExit ( Collider other )
     {
         if (other.CompareTag("Caña"))
-            cañaActual = null;
+            sugarcaneActual = null;
 
         if (other.CompareTag("Destino"))
             destinoDeposito = null;
