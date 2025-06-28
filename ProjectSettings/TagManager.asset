@@ -9,6 +9,7 @@ TagManager:
   - Burro
   - Sugarcane
   - Item
+  - Suelo
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - Water
   - UI
   - Player
-  - 
+  - Suelo
   - 
   - 
   - 
