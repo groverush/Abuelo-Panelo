@@ -19,7 +19,6 @@ public class PlayerController : MonoBehaviour
     public GameObject objetoTransportado;
     public GameObject animal; // Referencia al burro/burra
 
-
     [SerializeField] private Animator animator; // Aseg�rate de asignarlo en el Inspector
 
     private Sugarcane sugarcaneActual;
@@ -45,7 +44,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
     public void Mover()
     {
         float h = Input.GetAxis("Horizontal");
@@ -57,8 +55,8 @@ public class PlayerController : MonoBehaviour
         transform.Translate(movimiento * velocidad * Time.deltaTime);
         transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * h);
 
-        // Calcula la velocidad como magnitud del vector de entrada
-        float speed = new Vector2(h, v).magnitude;
+        // Calcula la velocidad como magnitud del vector de entradafloat speed = Mathf.Abs(v);
+        float speed = Mathf.Abs(v);
 
         // Actualiza el par�metro del Animator
         animator.SetFloat("Speed_f", speed);

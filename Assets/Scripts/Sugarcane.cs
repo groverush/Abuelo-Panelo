@@ -18,7 +18,7 @@ public class Sugarcane : MonoBehaviour
 
     private void CortarCompletada ()
     {
-        Debug.Log("¡La caña fue cortada!");
+        Debug.Log("¡Cortada!");
         // Puedes instanciar un "item" recolectable aquí
     }
 }
