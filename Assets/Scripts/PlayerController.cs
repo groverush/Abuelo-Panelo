@@ -58,14 +58,36 @@ public class PlayerController : MonoBehaviour
             estaCortando = false;
         }
 
+        // Depositar
         if (Input.GetKeyDown(KeyCode.E) && destinoDeposito != null)
         {
+            Debug.Log("📦 Depositar objeto...");
             Depositar(destinoDeposito);
         }
 
+        // Llamar al animal (burro)
         if (Input.GetKeyDown(KeyCode.Q))
         {
+            Debug.Log("📢 Llamando al burro...");
             LlamarAnimal();
+        }
+
+        // Recoger del burro
+        if (Input.GetKeyDown(KeyCode.R) && animal != null)
+        {
+            float distancia = Vector3.Distance(transform.position, animal.transform.position);
+            if (distancia <= 2.5f)
+            {
+                Burro burro = animal.GetComponent<Burro>();
+                if (burro != null && burro.TieneCarga())
+                {
+                    GameObject item = burro.ExtraerItem();
+                    if (item != null)
+                    {
+                        Recolectar(item);
+                    }
+                }
+            }
         }
     }
 
@@ -131,6 +153,19 @@ public class PlayerController : MonoBehaviour
         if (objetoTransportado != null)
         {
             Item datos = objetoTransportado.GetComponent<Item>();
+
+            if (destino.CompareTag("Burro"))
+            {
+                Burro burro = destino.GetComponent<Burro>();
+                if (burro != null && burro.RecibirItem(objetoTransportado))
+                {
+                    cargaActual -= datos.peso;
+                    objetoTransportado = null;
+                    return;
+                }
+            }
+
+            // Por defecto deposita en destino normal
             objetoTransportado.transform.SetParent(destino);
             objetoTransportado.transform.position = destino.position;
             cargaActual -= datos.peso;
@@ -142,7 +177,11 @@ public class PlayerController : MonoBehaviour
     {
         if (animal != null)
         {
-            animal.GetComponent<NavMeshAgent>().SetDestination(this.transform.position);
+            Burro burro = animal.GetComponent<Burro>();
+            if (burro != null)
+            {
+                burro.SeguirJugador(this.transform);
+            }
         }
     }
 
@@ -151,7 +190,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log("📦 Pedido entregado a la abuela.");
     }
 
-    // ✅ Recolección de cañas (prefabs tipo pieza)
     public bool PuedeRecolectarCana ()
     {
         return canasRecolectadas < maxCanas;
