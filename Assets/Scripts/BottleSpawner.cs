@@ -13,7 +13,8 @@ public class BottleSpawner : MonoBehaviour
     public int columns = 4;
 
     private List<GameObject> currentBottles = new List<GameObject>();
-
+    [Header("Height Offset")]
+    public float heightOffset = 0.05f;
     void Start()
     {
         SpawnBottles();
@@ -37,7 +38,10 @@ public class BottleSpawner : MonoBehaviour
         float tableWidth = tableSize.x;
         float tableDepth = tableSize.z;
 
-        // Calcula inicio para centrar el grid
+        // Calcula la altura real superior de la mesa
+        float tableTopY = table.GetComponent<Renderer>().bounds.max.y;
+
+        // Calcula inicio para centrar el grid sobre la mesa
         float startX = -tableWidth / 2f + (spacing / 2f);
         float startZ = -tableDepth / 2f + (spacing / 2f);
 
@@ -45,14 +49,16 @@ public class BottleSpawner : MonoBehaviour
         {
             for (int j = 0; j < columns; j++)
             {
-                // Posición local sobre la mesa
+                // Posición local respecto a la mesa
                 float localX = startX + (i * spacing);
                 float localZ = startZ + (j * spacing);
+                Vector3 localPos = new Vector3(localX, 0f, localZ);
 
-                Vector3 localPos = new Vector3(localX, tableSize.y / 2f, localZ); // y = mitad de la mesa para quedar sobre la superficie
-
-                // Convierte a posición global
+                // Convierte a posición global respetando rotación y posición
                 Vector3 spawnPos = table.transform.TransformPoint(localPos);
+
+                // Ajusta la Y para colocarla exactamente sobre la superficie
+                spawnPos.y = tableTopY + heightOffset;
 
                 // Instancia la botella
                 GameObject bottle = Instantiate(bottlePrefab, spawnPos, Quaternion.identity);
