@@ -2,52 +2,69 @@
 
 public class Maquina : MonoBehaviour
 {
-    [Header("Configuración")]
-    [SerializeField] private int capacidadMaxima = 20;
+    [SerializeField] private int capacidadInterna = 100;
+    [SerializeField] private int cantidadProcesar = 5;
+    [SerializeField] private float tiempoProceso = 10f;
+    [SerializeField] private AudioSource sonidoMotor;
+    [SerializeField] private Barril barril;
 
-    private int cantidadActual = 0;
+    private int canasEnMaquina = 0;
+    private bool estaProcesando = false;
 
-    /// <summary>
-    /// Devuelve cuántas sugarcanes puede recibir todavía.
-    /// </summary>
+    void Update ()
+    {
+        if (!estaProcesando && canasEnMaquina >= cantidadProcesar && barril != null && !barril.EstaLleno)
+        {
+            StartCoroutine(ProcesarCanas());
+        }
+    }
+
     public int EspacioDisponible ()
     {
-        return Mathf.Max(0, capacidadMaxima - cantidadActual);
+        return capacidadInterna - canasEnMaquina;
     }
 
-    /// <summary>
-    /// Recibe una sugarcane si hay espacio.
-    /// </summary>
-    public bool RecibirCana ()
+    public void RecibirCana ()
     {
-        if (cantidadActual < capacidadMaxima)
+        if (canasEnMaquina < capacidadInterna)
         {
-            cantidadActual++;
-            UIManager.Instance.ActualizarCanaMaquina(cantidadActual, capacidadMaxima);
-            Debug.Log($"🏭 Máquina recibió una sugarcane. Total: {cantidadActual}/{capacidadMaxima}");
-            return true;
-        }
-        else
-        {
-            Debug.Log("⚠️ La máquina está llena. No puede recibir más sugarcanes.");
-            return false;
+            canasEnMaquina++;
+            UIManager.Instance.ActualizarCanaMaquina(canasEnMaquina, capacidadInterna);
         }
     }
 
-    /// <summary>
-    /// Para futuras mecánicas, como vaciar la máquina.
-    /// </summary>
-    public void Vaciar ()
+    private System.Collections.IEnumerator ProcesarCanas ()
     {
-        cantidadActual = 0;
-        UIManager.Instance.ActualizarCanaMaquina(cantidadActual, capacidadMaxima);
+        estaProcesando = true;
+
+        if (sonidoMotor != null) sonidoMotor.Play();
+        UIManager.Instance.MostrarContadorProcesamiento(true);
+
+        float tiempoRestante = tiempoProceso;
+
+        while (tiempoRestante > 0f)
+        {
+            UIManager.Instance.ActualizarContadorProcesamiento((int)tiempoRestante);
+            yield return new WaitForSeconds(1f);
+            tiempoRestante -= 1f;
+
+            if (barril.EstaLleno)
+            {
+                UIManager.Instance.MostrarContadorProcesamiento(false);
+                if (sonidoMotor != null) sonidoMotor.Stop();
+                estaProcesando = false;
+                yield break;
+            }
+        }
+
+        int cantidadTransferida = Mathf.Min(canasEnMaquina, cantidadProcesar, barril.EspacioDisponible());
+        canasEnMaquina -= cantidadTransferida;
+        barril.RecibirCanas(cantidadTransferida);
+        UIManager.Instance.ActualizarCanaMaquina(canasEnMaquina, capacidadInterna);
+
+        UIManager.Instance.MostrarContadorProcesamiento(false);
+        if (sonidoMotor != null) sonidoMotor.Stop();
+        estaProcesando = false;
     }
 
-    /// <summary>
-    /// Opcional: para obtener la cantidad actual si lo necesitas desde otro script.
-    /// </summary>
-    public int ObtenerCantidadActual ()
-    {
-        return cantidadActual;
-    }
 }

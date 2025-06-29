@@ -48,3 +48,5 @@ MonoBehaviour:
   textoCanaBurro: {fileID: 0}
   textoMaquina: {fileID: 0}
   textoInteraccionBurro: {fileID: 0}
+  contadorProcesamientoTexto: {fileID: 0}
+  porcentajeBarrilTexto: {fileID: 0}

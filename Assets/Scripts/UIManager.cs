@@ -10,6 +10,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoCanaBurro;
     [SerializeField] private TextMeshProUGUI textoMaquina;
     [SerializeField] private TextMeshProUGUI textoInteraccionBurro; // El panel o contenedor del texto "Presiona E para depositar"
+    [SerializeField] private TextMeshProUGUI contadorProcesamientoTexto;
+    [SerializeField] private TextMeshProUGUI porcentajeBarrilTexto;
 
 
     private void Awake ()
@@ -48,5 +50,34 @@ public class UIManager : MonoBehaviour
         if (textoMaquina != null)
             textoMaquina.text = $"Máquina: {actual} / {maximo}";
     }
+
+
+    public void ActualizarContadorProcesamiento ( int segundos )
+    {
+        if (contadorProcesamientoTexto != null)
+            contadorProcesamientoTexto.text = $"Procesando: {segundos}s";
+    }
+
+    public void ActualizarPorcentajeBarril ( int actual, int maximo )
+    {
+        if (porcentajeBarrilTexto != null)
+        {
+            float porcentaje = ((float)actual / maximo) * 100f;
+            porcentajeBarrilTexto.text = $"Barril: {porcentaje:F0}%";
+        }
+    }
+
+    public void MostrarContadorProcesamiento ( bool mostrar )
+    {
+        if (contadorProcesamientoTexto != null)
+            contadorProcesamientoTexto.gameObject.SetActive(mostrar);
+    }
+
+    public void MostrarPorcentajeBarril ( bool mostrar )
+    {
+        if (porcentajeBarrilTexto != null)
+            porcentajeBarrilTexto.gameObject.SetActive(mostrar);
+    }
+
 
 }
