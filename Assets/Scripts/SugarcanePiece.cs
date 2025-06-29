@@ -30,7 +30,7 @@ public class SugarcanePiece : MonoBehaviour
             PlayerController jugador = other.GetComponent<PlayerController>();
             if (jugador != null && jugador.PuedeRecolectarCana())
             {
-                jugador.RecolectarCana();
+                jugador.Recolectar();
                 Destroy(gameObject);
             }
         }

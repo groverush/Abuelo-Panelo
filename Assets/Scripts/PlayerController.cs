@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     public Transform mano;
     public GameObject objetoTransportado;
     public GameObject animal;
+    [SerializeField] private GameObject sugarcanePrefab; // Prefab con Item + tag "Item"
 
     [Header("Visual")]
     public Transform meshTransform;
@@ -28,22 +29,30 @@ public class PlayerController : MonoBehaviour
 
     public static bool EstaCortando { get; private set; }
 
-    // ✅ Sistema de cañas recolectadas
-    private int canasRecolectadas = 0;
-    private const int maxCanas = 5;
+    private int sugarcanesRecolectados = 0;
+    private const int maxSugarcanes = 5;
+    private bool estaCercaDelBurro = false;
 
     void Start ()
     {
         if (animator == null)
             animator = GetComponent<Animator>();
+
+        UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
     void FixedUpdate ()
     {
         Mover();
+        ManejarCorte();
+        ManejarDeposito();
+        ManejarLlamadoBurro();
+        ManejarRecogerDelBurro();
+    }
 
-        // 🔁 Animación de corte mientras se mantenga "C"
-        bool cortando = Input.GetKey(KeyCode.C);
+    private void ManejarCorte ()
+    {
+        bool cortando = Input.GetKey(KeyCode.Space);
         animator.SetBool("Cut_b", cortando);
         EstaCortando = cortando;
 
@@ -57,22 +66,65 @@ public class PlayerController : MonoBehaviour
             CancelInvoke(nameof(RealizarCorte));
             estaCortando = false;
         }
+    }
 
-        // Depositar
-        if (Input.GetKeyDown(KeyCode.E) && destinoDeposito != null)
+    private void ManejarDeposito ()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            Debug.Log("📦 Depositar objeto...");
-            Depositar(destinoDeposito);
-        }
+            if (destinoDeposito != null)
+            {
+                Depositar(destinoDeposito);
+                return;
+            }
 
-        // Llamar al animal (burro)
+            if (animal != null && estaCercaDelBurro)
+            {
+                Burro burro = animal.GetComponent<Burro>();
+                if (burro != null && sugarcanesRecolectados > 0)
+                {
+                    for (int i = 0; i < sugarcanesRecolectados; i++)
+                    {
+                        GameObject nuevaSugarcane = Instantiate(sugarcanePrefab);
+                        nuevaSugarcane.tag = "Item";
+
+                        Item item = nuevaSugarcane.GetComponent<Item>();
+                        if (item == null)
+                            item = nuevaSugarcane.AddComponent<Item>();
+
+                        item.peso = 10f;
+                        item.tipo = "Sugarcane";
+
+                        burro.RecibirItem(nuevaSugarcane);
+                    }
+
+                    Debug.Log($"🐴 Se transfirieron {sugarcanesRecolectados} sugarcanes al burro.");
+                    sugarcanesRecolectados = 0;
+                    UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
+                }
+                else
+                {
+                    Debug.Log("🚫 No tienes sugarcanes para transferir.");
+                }
+            }
+            else
+            {
+                Debug.Log("❌ El burro está demasiado lejos para interactuar.");
+            }
+        }
+    }
+
+    private void ManejarLlamadoBurro ()
+    {
         if (Input.GetKeyDown(KeyCode.Q))
         {
             Debug.Log("📢 Llamando al burro...");
             LlamarAnimal();
         }
+    }
 
-        // Recoger del burro
+    private void ManejarRecogerDelBurro ()
+    {
         if (Input.GetKeyDown(KeyCode.R) && animal != null)
         {
             float distancia = Vector3.Distance(transform.position, animal.transform.position);
@@ -82,9 +134,16 @@ public class PlayerController : MonoBehaviour
                 if (burro != null && burro.TieneCarga())
                 {
                     GameObject item = burro.ExtraerItem();
-                    if (item != null)
+                    if (item != null && objetoTransportado == null)
                     {
-                        Recolectar(item);
+                        objetoTransportado = item;
+                        item.transform.SetParent(mano);
+                        item.transform.localPosition = Vector3.zero;
+
+                        Item datos = item.GetComponent<Item>();
+                        cargaActual += datos != null ? datos.peso : 0;
+
+                        Debug.Log("🎒 Objeto recuperado del burro");
                     }
                 }
             }
@@ -100,13 +159,11 @@ public class PlayerController : MonoBehaviour
         transform.Translate(movimiento * velocidad * Time.deltaTime);
         transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * h);
 
-        // Rotación del cuerpo
         if (v < 0)
             meshTransform.localRotation = Quaternion.Euler(0, 180, 0);
         else if (v > 0)
             meshTransform.localRotation = Quaternion.identity;
 
-        // Animaciones
         float speed = Mathf.Clamp(Mathf.Abs(v), 0, 0.5f);
         animator.SetFloat("Speed_f", speed);
 
@@ -128,12 +185,26 @@ public class PlayerController : MonoBehaviour
             sugarcaneActual.ReducirResistencia(fuerza);
             if (sugarcaneActual.EstaCortada())
             {
-                Debug.Log("✅ Caña cortada.");
+                Debug.Log("✅ Sugarcane cortada.");
             }
         }
     }
 
-    public void Recolectar ( GameObject item )
+    public void Recolectar ()
+    {
+        if (PuedeRecolectarCana())
+        {
+            sugarcanesRecolectados++;
+            Debug.Log($"🌱 Sugarcanes recolectadas: {sugarcanesRecolectados} / {maxSugarcanes}");
+            UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
+        }
+        else
+        {
+            Debug.Log("🚫 Límite de sugarcanes alcanzado.");
+        }
+    }
+
+    public void RecolectarItem ( GameObject item )
     {
         if (cargaActual < capacidadCarga && objetoTransportado == null)
         {
@@ -165,7 +236,6 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            // Por defecto deposita en destino normal
             objetoTransportado.transform.SetParent(destino);
             objetoTransportado.transform.position = destino.position;
             cargaActual -= datos.peso;
@@ -192,38 +262,24 @@ public class PlayerController : MonoBehaviour
 
     public bool PuedeRecolectarCana ()
     {
-        return canasRecolectadas < maxCanas;
+        return sugarcanesRecolectados < maxSugarcanes;
     }
 
-    public void RecolectarCana ()
+    public void SetCercaniaBurro ( bool estaCerca )
     {
-        if (PuedeRecolectarCana())
-        {
-            canasRecolectadas++;
-            Debug.Log($"🌱 Cañas recolectadas: {canasRecolectadas} / {maxCanas}");
-        }
-        else
-        {
-            Debug.Log("🚫 Límite de cañas alcanzado.");
-        }
+        estaCercaDelBurro = estaCerca;
     }
 
     private void OnTriggerEnter ( Collider other )
     {
         if (other.CompareTag("Sugarcane"))
-        {
             sugarcaneActual = other.GetComponent<Sugarcane>();
-        }
 
         if (other.CompareTag("Destino"))
-        {
             destinoDeposito = other.transform;
-        }
 
         if (other.CompareTag("Item"))
-        {
-            Recolectar(other.gameObject);
-        }
+            RecolectarItem(other.gameObject);
     }
 
     private void OnTriggerExit ( Collider other )
