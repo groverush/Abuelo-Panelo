@@ -10,6 +10,7 @@ TagManager:
   - Sugarcane
   - Item
   - Suelo
+  - Maquina
   layers:
   - Default
   - TransparentFX
@@ -19,8 +20,8 @@ TagManager:
   - UI
   - Player
   - Suelo
-  - 
-  - 
+  - Burro
+  - Sugarcane
   - 
   - 
   - 

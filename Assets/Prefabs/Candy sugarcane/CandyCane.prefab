@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6596660477590489432}
   - component: {fileID: 5821598329222048577}
   - component: {fileID: 4502084641291022331}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: pCylinder1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,8 @@ GameObject:
   - component: {fileID: 7888316891442004406}
   - component: {fileID: 1435256947715433339}
   - component: {fileID: 8429485077851195074}
-  m_Layer: 0
+  - component: {fileID: 1239680180191533586}
+  m_Layer: 9
   m_Name: CandyCane
   m_TagString: Sugarcane
   m_Icon: {fileID: 0}
@@ -163,7 +164,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7364298843131550476}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 111.28609, y: 28.0167, z: -41.063858}
   m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
@@ -209,3 +210,19 @@ MonoBehaviour:
   resistencia: 20
   piezaDeCanaPrefab: {fileID: 744598994687430588, guid: 49dae13330559ca4ba9c5b4992456c3f, type: 3}
   fuerzaPorGolpe: 10
+--- !u!208 &1239680180191533586
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7364298843131550476}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 0
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
