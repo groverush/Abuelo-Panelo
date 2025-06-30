@@ -6,7 +6,9 @@ public class Barril : MonoBehaviour
     [SerializeField] private int capacidadMaxima = 20;
     [SerializeField] private TextMeshProUGUI textoPorcentaje;
 
-    private int canasActuales = 0;
+    public Transform puntoTextoUI; // Donde se mostrará el contador encima
+
+    public int canasActuales = 0;
 
     public bool EstaLleno => canasActuales >= capacidadMaxima;
 
@@ -27,7 +29,7 @@ public class Barril : MonoBehaviour
         ActualizarUI();
     }
 
-    private void ActualizarUI ()
+    public void ActualizarUI ()
     {
         if (canasActuales <= 0)
         {

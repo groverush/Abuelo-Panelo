@@ -15,8 +15,8 @@ GameObject:
   - component: {fileID: 3637501455040406929}
   - component: {fileID: 3486178463643054270}
   m_Layer: 0
-  m_Name: Berrel
-  m_TagString: Untagged
+  m_Name: Barril
+  m_TagString: Barril
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -124,6 +124,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   capacidadMaxima: 20
   textoPorcentaje: {fileID: 109542109240571025}
+  puntoTextoUI: {fileID: 0}
+  canasActuales: 0
 --- !u!135 &3486178463643054270
 SphereCollider:
   m_ObjectHideFlags: 0

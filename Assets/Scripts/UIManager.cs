@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoCanaJugador;
     [SerializeField] private TextMeshProUGUI textoCanaBurro;
     [SerializeField] private TextMeshProUGUI textoMaquina;
-    [SerializeField] private TextMeshProUGUI textoInteraccionBurro; // El panel o contenedor del texto "Presiona E para depositar"
+    [SerializeField] private TextMeshProUGUI textoInteraccion; // El panel o contenedor del texto "Presiona E para depositar"
     [SerializeField] private TextMeshProUGUI contadorProcesamientoTexto;
     [SerializeField] private TextMeshProUGUI porcentajeBarrilTexto;
 
@@ -30,20 +30,20 @@ public class UIManager : MonoBehaviour
     public void ActualizarCanaJugador ( int actual, int maximo )
     {
         if (textoCanaJugador != null)
-            textoCanaJugador.text = $"Caña: {actual} / {maximo}";
+            textoCanaJugador.text = $"Jugador: {actual} / {maximo}";
     }
 
     public void ActualizarCanaBurro ( int actual, int maximo )
     {
         if (textoCanaBurro != null)
-            textoCanaBurro.text = $"Caña (Burro): {actual} / {maximo}";
+            textoCanaBurro.text = $"Burro: {actual} / {maximo}";
     }
 
-    public void MostrarTextoBurro ( bool mostrar )
+    public void MostrarTextoInteraccion( bool mostrar, string texto )
     {
-        if (textoInteraccionBurro != null)
-            textoInteraccionBurro.gameObject.SetActive(mostrar);
-
+        if (textoInteraccion != null)
+            textoInteraccion.gameObject.SetActive(mostrar);
+        textoInteraccion.text = texto;
     }
     public void ActualizarCanaMaquina ( int actual, int maximo )
     {

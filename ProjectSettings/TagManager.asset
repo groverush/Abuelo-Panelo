@@ -11,6 +11,8 @@ TagManager:
   - Item
   - Suelo
   - Maquina
+  - Botella
+  - Barril
   layers:
   - Default
   - TransparentFX

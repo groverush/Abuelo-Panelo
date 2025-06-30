@@ -10,10 +10,22 @@ public class PlayerController : MonoBehaviour
     public float velocidad = 5f;
     public float velocidadGiro = 5f;
     public float capacidadCarga = 50f;
-
+    private float velocidadBase;
     private float cargaActual = 0f;
+    private int sugarcanesRecolectados = 0;
+    private const int maxSugarcanes = 5;
+
     private bool estaCortando = false;
-    private bool machetePuedeSonar = false;
+    private bool estaCercaDelBurro = false;
+    private bool estaCorriendo = false;
+
+    private Sugarcane sugarcaneActual;
+    private Transform destinoDeposito;
+    private GameObject botellaCercana = null;
+
+    public static bool EstaCortando { get; private set; }
+    private GameObject barrilCercano;
+
 
     [Header("Referencias")]
     public Transform mano;
@@ -35,18 +47,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip recolectarAudioClip;
     [SerializeField] private AudioSource llamarAudioSource;
     [SerializeField] private AudioClip llamarAudioClip;
+    [SerializeField] private GameObject botellaPrefab;
+    [SerializeField] private GameObject botellaLlenaPrefab;
 
-    private Sugarcane sugarcaneActual;
-    private Transform destinoDeposito;
+    [Header("Posición y rotación de la botella")]
+    [SerializeField] private Vector3 posicionBotellaEnMano = new Vector3(0.22f, -0.77f, -0.7f);
+    [SerializeField] private Vector3 rotacionBotellaEnMano = new Vector3(45f, 135f, 55f);
 
-    public static bool EstaCortando { get; private set; }
-
-    private int sugarcanesRecolectados = 0;
-    private const int maxSugarcanes = 5;
-    private bool estaCercaDelBurro = false;
-
-    private float velocidadBase;
-    private bool estaCorriendo = false;
 
     void Start ()
     {
@@ -63,42 +70,13 @@ public class PlayerController : MonoBehaviour
         Mover();
         Correr();
         Bailar();
+        BailarB();
         ManejarCorte();
         ManejarDeposito();
         ManejarLlamadoBurro();
         ManejarRecogerDelBurro();
-    }
-
-    private void ManejarCorte ()
-    {
-        bool cortando = Input.GetKey(KeyCode.Space);
-        animator.SetBool("Cut_b", cortando);
-        EstaCortando = cortando;
-
-        if (cortando && !estaCortando)
-        {
-            macheteCollider.enabled = true;
-            InvokeRepeating(nameof(RealizarCorte), 0f, 1.5f);
-            estaCortando = true;
-        }
-        else if (!cortando && estaCortando)
-        {
-            macheteCollider.enabled = false;
-            CancelInvoke(nameof(RealizarCorte));
-            estaCortando = false;
-        }
-    }
-
-    private void RealizarCorte ()
-    {
-        if (sugarcaneActual != null)
-        {
-            sugarcaneActual.ReducirResistencia(fuerza);
-            if (sugarcaneActual.EstaCortada())
-            {
-                Debug.Log("✅ Sugarcane cortada.");
-            }
-        }
+        ManejarRecolectarBotella();
+        ManejarLlenadoBotella();
     }
 
 
@@ -200,6 +178,38 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void ManejarCorte ()
+    {
+        bool cortando = Input.GetKey(KeyCode.Space);
+        animator.SetBool("Cut_b", cortando);
+        EstaCortando = cortando;
+
+        if (cortando && !estaCortando)
+        {
+            macheteCollider.enabled = true;
+            InvokeRepeating(nameof(RealizarCorte), 0f, 1.5f);
+            estaCortando = true;
+        }
+        else if (!cortando && estaCortando)
+        {
+            macheteCollider.enabled = false;
+            CancelInvoke(nameof(RealizarCorte));
+            estaCortando = false;
+        }
+    }
+
+    private void RealizarCorte ()
+    {
+        if (sugarcaneActual != null)
+        {
+            sugarcaneActual.ReducirResistencia(fuerza);
+            if (sugarcaneActual.EstaCortada())
+            {
+                Debug.Log("✅ Sugarcane cortada.");
+            }
+        }
+    }
+
 
     private void ManejarDeposito ()
     {
@@ -231,6 +241,8 @@ public class PlayerController : MonoBehaviour
                         burro.RecibirItem(nuevaSugarcane);
                     }
 
+
+                    recolectarAudioSource.PlayOneShot(recolectarAudioClip, 5f);
                     Debug.Log($"🐴 Se transfirieron {sugarcanesRecolectados} sugarcanes al burro.");
                     sugarcanesRecolectados = 0;
                     UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
@@ -278,10 +290,138 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    private void ManejarRecolectarBotella ()
+    {
+        if (Input.GetKeyDown(KeyCode.R) && botellaCercana != null && objetoTransportado == null)
+        {
+            Debug.Log("🍾 Intentando recoger botella cercana...");
+
+            Item datos = botellaCercana.GetComponent<Item>();
+            if (datos != null && (cargaActual + datos.peso <= capacidadCarga))
+            {
+                // Instanciar una nueva botella en la mano
+                GameObject nuevaBotella = Instantiate(botellaPrefab, mano.position, mano.rotation);
+                nuevaBotella.transform.SetParent(mano);
+                nuevaBotella.transform.localPosition = posicionBotellaEnMano;
+                nuevaBotella.transform.localRotation = Quaternion.Euler(rotacionBotellaEnMano);
+
+
+                Rigidbody rb = nuevaBotella.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.isKinematic = true;
+                    rb.useGravity = false;
+                }
+                Collider col = nuevaBotella.GetComponent<Collider>();
+                if (col != null)
+                {
+                    col.enabled = false;
+                }
+
+                objetoTransportado = nuevaBotella;
+                cargaActual += datos.peso;
+
+                // Ocultar o destruir la botella de la escena
+                //botellaCercana.SetActive(false);
+                Destroy(botellaCercana);
+                recolectarAudioSource.PlayOneShot(recolectarAudioClip, 1f);
+
+                UIManager.Instance.MostrarTextoInteraccion(false, "No hay objetos cerca");
+                Debug.Log("🍾 Botella recogida y colocada en la mano.");
+                botellaCercana = null;
+            }
+            else
+            {
+                Debug.Log("🚫 No se pudo recoger la botella: falta espacio o datos nulos.");
+            }
+        }
+    }
+
+    private void ManejarLlenadoBotella ()
+    {
+        if (Input.GetKeyDown(KeyCode.F) && objetoTransportado != null && barrilCercano != null)
+        {
+            Debug.Log("🛢️ Intentando llenar botella en barril cercano...");
+            Item item = objetoTransportado.GetComponent<Item>();
+            if (item != null && item.tipo == "Botella")
+            {
+                Barril barril = barrilCercano.GetComponent<Barril>();
+                if (barril != null && barril.canasActuales >= 5)
+                {
+                    // 1️⃣ Restar caña al barril
+                    barril.canasActuales -= 5;
+                    barril.ActualizarUI(); // 🔄 actualizar UI de porcentaje
+
+                    // 2️⃣ Eliminar botella vacía
+                    Destroy(objetoTransportado);
+
+                    // 3️⃣ Instanciar botella llena en la mano
+                    GameObject botellaLlena = Instantiate(botellaLlenaPrefab, mano.position, mano.rotation);
+                    botellaLlena.tag = "Item";
+                    botellaLlena.transform.SetParent(mano);
+                    botellaLlena.transform.localPosition = posicionBotellaEnMano;
+                    botellaLlena.transform.localRotation = Quaternion.Euler(rotacionBotellaEnMano);
+
+                    // 4️⃣ Desactivar física
+                    Rigidbody rb = botellaLlena.GetComponent<Rigidbody>();
+                    if (rb != null) { rb.isKinematic = true; rb.useGravity = false; }
+
+                    Collider col = botellaLlena.GetComponent<Collider>();
+                    if (col != null) { col.enabled = false; }
+
+                    // 5️⃣ Asignar como objeto en mano
+                    objetoTransportado = botellaLlena;
+
+                    // 6️⃣ Cambiar tipo a BotellaLlena
+                    Item nuevoItem = botellaLlena.GetComponent<Item>();
+                    if (nuevoItem != null)
+                        nuevoItem.tipo = "BotellaLlena";
+
+                    // 7️⃣ Ocultar UI
+                    UIManager.Instance.MostrarTextoInteraccion(false, "");
+
+                    Debug.Log("✅ Botella llenada con 5 cañas.");
+
+                    // 8️⃣ Notificar a la máquina si puede reanudar
+                    Maquina maquina = FindObjectOfType<Maquina>();
+                    if (maquina != null && maquina.TieneCanaPendiente() && !barril.EstaLleno)
+                    {
+                        maquina.ReanudarProcesamiento();
+                    }
+                }
+                else
+                {
+                    Debug.Log("🚫 No hay suficiente caña en el barril.");
+                }
+            }
+        }
+    }
+
+
+    private void OnDrawGizmosSelected ()
+    {
+        #if UNITY_EDITOR
+                if (mano != null)
+                {
+                    Gizmos.color = Color.cyan;
+                    Matrix4x4 rotationMatrix = Matrix4x4.TRS(mano.position + mano.rotation * posicionBotellaEnMano, mano.rotation * Quaternion.Euler(rotacionBotellaEnMano), Vector3.one);
+                    Gizmos.matrix = rotationMatrix;
+                    Gizmos.DrawWireCube(Vector3.zero, new Vector3(0.1f, 0.25f, 0.1f)); // Tamaño estimado de botella
+                    Gizmos.DrawRay(Vector3.zero, Vector3.forward * 0.3f); // Dirección hacia adelante (pico)
+                }
+        #endif
+    }
+
     private void Bailar ()
     {
         bool presionoTeclaBailar = Input.GetKey(KeyCode.B);
         animator.SetBool("Dance_b", presionoTeclaBailar);
+    }
+
+    private void BailarB ()
+    {
+        bool presionoTeclaBailar = Input.GetKey(KeyCode.N);
+        animator.SetBool("Danceb_b", presionoTeclaBailar);
     }
 
     public void Depositar ( Transform destino )
@@ -377,7 +517,7 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("Sugarcane"))
         {
-            sugarcaneActual = other.GetComponent<Sugarcane>();            
+            sugarcaneActual = other.GetComponent<Sugarcane>();
         }
 
         if (other.CompareTag("Destino"))
@@ -385,7 +525,13 @@ public class PlayerController : MonoBehaviour
 
         if (other.CompareTag("Item"))
         {
-            RecolectarBotella(other.gameObject);
+            botellaCercana = other.gameObject;
+            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona R para recoger botella");
+        }
+        if (other.CompareTag("Barril"))
+        {
+            barrilCercano = other.gameObject;
+            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona F para llenar la botella");
         }
     }
 
@@ -396,6 +542,18 @@ public class PlayerController : MonoBehaviour
 
         if (other.CompareTag("Destino"))
             destinoDeposito = null;
+
+        if (other.CompareTag("Item") && other.gameObject == botellaCercana)
+        {
+            botellaCercana = null;
+            UIManager.Instance.MostrarTextoInteraccion(false, "No hay objetos cerca");
+        }
+        if (other.CompareTag("Barril"))
+        {
+            barrilCercano = null;
+            UIManager.Instance.MostrarTextoInteraccion(false, "");
+        }
     }
+
 
 }
