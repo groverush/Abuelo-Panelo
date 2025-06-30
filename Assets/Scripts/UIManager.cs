@@ -12,6 +12,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoInteraccion; // El panel o contenedor del texto "Presiona E para depositar"
     [SerializeField] private TextMeshProUGUI contadorProcesamientoTexto;
     [SerializeField] private TextMeshProUGUI porcentajeBarrilTexto;
+    [SerializeField] private TextMeshProUGUI textoProgresoJarabe;
+    [SerializeField] private GameObject panelVictoria;
+    [SerializeField] private TextMeshProUGUI textoVictoria;
 
 
     private void Awake ()
@@ -79,5 +82,19 @@ public class UIManager : MonoBehaviour
             porcentajeBarrilTexto.gameObject.SetActive(mostrar);
     }
 
+    public void ActualizarProgresoJarabe ( int actual, int total )
+    {
+        if (textoProgresoJarabe != null)
+            textoProgresoJarabe.text = $"Jarabe {actual} / {total}";
+    }
+
+    public void MostrarVictoria ( string mensaje = "¡VICTORIA!" )
+    {
+        if (panelVictoria != null)
+            panelVictoria.SetActive(true);
+
+        if (textoVictoria != null)
+            textoVictoria.text = mensaje;
+    }
 
 }

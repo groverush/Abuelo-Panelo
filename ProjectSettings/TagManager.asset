@@ -13,6 +13,7 @@ TagManager:
   - Maquina
   - Botella
   - Barril
+  - MesaEntrega
   layers:
   - Default
   - TransparentFX

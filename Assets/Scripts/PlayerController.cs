@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,18 +14,20 @@ public class PlayerController : MonoBehaviour
     private float velocidadBase;
     private float cargaActual = 0f;
     private int sugarcanesRecolectados = 0;
+    private int cantidadEntregada = 0;
     private const int maxSugarcanes = 5;
 
     private bool estaCortando = false;
     private bool estaCercaDelBurro = false;
     private bool estaCorriendo = false;
+    private bool estaCercaDeLaMesa = false;
 
     private Sugarcane sugarcaneActual;
     private Transform destinoDeposito;
     private GameObject botellaCercana = null;
+    private GameObject barrilCercano;
 
     public static bool EstaCortando { get; private set; }
-    private GameObject barrilCercano;
 
 
     [Header("Referencias")]
@@ -49,6 +52,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip llamarAudioClip;
     [SerializeField] private GameObject botellaPrefab;
     [SerializeField] private GameObject botellaLlenaPrefab;
+
+    [Header("Entrega de Jarabe")]
+    [SerializeField] private Transform[] posicionesEntrega; // 5 posiciones vacías sobre la mesa
+    [SerializeField] private Transform mesaDestino;
+
 
     [Header("Posición y rotación de la botella")]
     [SerializeField] private Vector3 posicionBotellaEnMano = new Vector3(0.22f, -0.77f, -0.7f);
@@ -77,6 +85,7 @@ public class PlayerController : MonoBehaviour
         ManejarRecogerDelBurro();
         ManejarRecolectarBotella();
         ManejarLlenadoBotella();
+        ManejarEntregaJarabe();
     }
 
 
@@ -396,6 +405,42 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    private void ManejarEntregaJarabe ()
+    {
+        if (Input.GetKeyDown(KeyCode.E) && estaCercaDeLaMesa && objetoTransportado != null)
+        {
+            Item item = objetoTransportado.GetComponent<Item>();
+            if (item != null && item.tipo == "BotellaLlena")
+            {
+                if (cantidadEntregada < posicionesEntrega.Length)
+                {
+                    // Instanciar una copia de la botella llena en la posición de la mesa
+                    Transform punto = posicionesEntrega[cantidadEntregada];
+                    GameObject nuevaBotella = Instantiate(botellaLlenaPrefab, punto.position, punto.rotation);
+                    nuevaBotella.transform.SetParent(punto);
+
+                    cantidadEntregada++;
+                    UIManager.Instance.ActualizarProgresoJarabe(cantidadEntregada, posicionesEntrega.Length);
+
+
+                    // Quitar botella de la mano
+                    Destroy(objetoTransportado);
+                    objetoTransportado = null;
+
+                    UIManager.Instance.MostrarTextoInteraccion(false, "");
+
+                    // Verificar victoria
+                    if (cantidadEntregada == posicionesEntrega.Length)
+                    {
+                        UIManager.Instance.MostrarVictoria();
+                        Debug.Log("🏆 ¡Ganaste el juego!");
+                    }
+                }
+            }
+        }
+    }
+
+
 
 
     private void OnDrawGizmosSelected ()
@@ -533,6 +578,12 @@ public class PlayerController : MonoBehaviour
             barrilCercano = other.gameObject;
             UIManager.Instance.MostrarTextoInteraccion(true, "Presiona F para llenar la botella");
         }
+        if (other.CompareTag("MesaEntrega"))
+        {
+            estaCercaDeLaMesa = true;
+            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona E para entregar jarabe");
+        }
+
     }
 
     private void OnTriggerExit ( Collider other )
@@ -551,6 +602,11 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Barril"))
         {
             barrilCercano = null;
+            UIManager.Instance.MostrarTextoInteraccion(false, "");
+        }
+        if (other.CompareTag("MesaEntrega"))
+        {
+            estaCercaDeLaMesa = false;
             UIManager.Instance.MostrarTextoInteraccion(false, "");
         }
     }
