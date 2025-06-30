@@ -9,9 +9,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoCanaJugador;
     [SerializeField] private TextMeshProUGUI textoCanaBurro;
     [SerializeField] private TextMeshProUGUI textoMaquina;
-    [SerializeField] private TextMeshProUGUI textoInteraccionBurro; // El panel o contenedor del texto "Presiona E para depositar"
+    [SerializeField] private TextMeshProUGUI textoInteraccion; // El panel o contenedor del texto "Presiona E para depositar"
     [SerializeField] private TextMeshProUGUI contadorProcesamientoTexto;
     [SerializeField] private TextMeshProUGUI porcentajeBarrilTexto;
+    [SerializeField] private TextMeshProUGUI textoProgresoJarabe;
+    [SerializeField] private TextMeshProUGUI textoBotellasRotas;
+    [SerializeField] private GameObject panelVictoria;
+    [SerializeField] private TextMeshProUGUI textoVictoria;
+    [SerializeField] private GameObject panelDerrota;
+    [SerializeField] private TextMeshProUGUI textoDerrota;
+    [SerializeField] private GameObject panelPausa;
+    [SerializeField] private TextMeshProUGUI textoPausa;
 
 
     private void Awake ()
@@ -26,24 +34,23 @@ public class UIManager : MonoBehaviour
     }
 
 
-
     public void ActualizarCanaJugador ( int actual, int maximo )
     {
         if (textoCanaJugador != null)
-            textoCanaJugador.text = $"Caña: {actual} / {maximo}";
+            textoCanaJugador.text = $"Jugador: {actual} / {maximo}";
     }
 
     public void ActualizarCanaBurro ( int actual, int maximo )
     {
         if (textoCanaBurro != null)
-            textoCanaBurro.text = $"Caña (Burro): {actual} / {maximo}";
+            textoCanaBurro.text = $"Burro: {actual} / {maximo}";
     }
 
-    public void MostrarTextoBurro ( bool mostrar )
+    public void MostrarTextoInteraccion( bool mostrar, string texto )
     {
-        if (textoInteraccionBurro != null)
-            textoInteraccionBurro.gameObject.SetActive(mostrar);
-
+        if (textoInteraccion != null)
+            textoInteraccion.gameObject.SetActive(mostrar);
+        textoInteraccion.text = texto;
     }
     public void ActualizarCanaMaquina ( int actual, int maximo )
     {
@@ -77,6 +84,50 @@ public class UIManager : MonoBehaviour
     {
         if (porcentajeBarrilTexto != null)
             porcentajeBarrilTexto.gameObject.SetActive(mostrar);
+    }
+
+    public void ActualizarProgresoJarabe ( int actual, int total )
+    {
+        if (textoProgresoJarabe != null)
+            textoProgresoJarabe.text = $"Jarabe {actual} / {total}";
+    }
+    public void ActualizarBotellasRotas ( int actual, int total )
+    {
+        if (textoBotellasRotas != null)
+            textoBotellasRotas.text = $"Botellas rotas: {actual} / {total}";
+    }
+
+    public void MostrarVictoria ( string mensaje )
+    {
+        if (panelVictoria != null)
+            panelVictoria.SetActive(true);
+
+        if (textoVictoria != null)
+            textoVictoria.text = mensaje;
+    }
+    public void MostrarDerrota ( string mensaje )
+    {
+        if (panelDerrota != null)
+            panelDerrota.SetActive(true);
+
+        if (textoDerrota != null)
+            textoDerrota.text = mensaje;
+    }
+    public void MostrarPausa (bool isPaused, string mensaje )
+    {
+        if (isPaused)
+        {
+
+            if (panelPausa != null)
+                panelPausa.SetActive(true);
+
+            if (textoPausa != null)
+                textoPausa.text = mensaje;
+        }
+        else
+        {
+            panelPausa.SetActive(false);
+        }
     }
 
 
