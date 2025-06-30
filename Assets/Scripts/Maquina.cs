@@ -4,7 +4,7 @@ public class Maquina : MonoBehaviour
 {
     [SerializeField] private int capacidadInterna = 100;
     [SerializeField] private int cantidadProcesar = 5;
-    [SerializeField] private float tiempoProceso = 10f;
+    [SerializeField] private float tiempoProceso = 3f;
     [SerializeField] private AudioSource sonidoMotor;
     [SerializeField] private Barril barril;
 

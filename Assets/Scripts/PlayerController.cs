@@ -13,16 +13,28 @@ public class PlayerController : MonoBehaviour
 
     private float cargaActual = 0f;
     private bool estaCortando = false;
+    private bool machetePuedeSonar = false;
 
     [Header("Referencias")]
     public Transform mano;
     public GameObject objetoTransportado;
     public GameObject animal;
-    [SerializeField] private GameObject sugarcanePrefab; // Prefab con Item + tag "Item"
+    [SerializeField] private GameObject sugarcanePrefab;
 
     [Header("Visual")]
     public Transform meshTransform;
     [SerializeField] private Animator animator;
+
+    [Header("Sonidos")]
+    [SerializeField] private AudioSource pasosAudioSource;
+    [SerializeField] private AudioSource correrAudioSource;
+    [SerializeField] private AudioClip pasosAudioClip;
+    [SerializeField] private AudioClip correrAudioClip;
+    [SerializeField] private Collider macheteCollider;
+    [SerializeField] private AudioSource recolectarAudioSource;
+    [SerializeField] private AudioClip recolectarAudioClip;
+    [SerializeField] private AudioSource llamarAudioSource;
+    [SerializeField] private AudioClip llamarAudioClip;
 
     private Sugarcane sugarcaneActual;
     private Transform destinoDeposito;
@@ -33,17 +45,24 @@ public class PlayerController : MonoBehaviour
     private const int maxSugarcanes = 5;
     private bool estaCercaDelBurro = false;
 
+    private float velocidadBase;
+    private bool estaCorriendo = false;
+
     void Start ()
     {
         if (animator == null)
             animator = GetComponent<Animator>();
 
+
+        velocidadBase = velocidad; // Guardamos la velocidad original
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
     void FixedUpdate ()
     {
         Mover();
+        Correr();
+        Bailar();
         ManejarCorte();
         ManejarDeposito();
         ManejarLlamadoBurro();
@@ -58,15 +77,129 @@ public class PlayerController : MonoBehaviour
 
         if (cortando && !estaCortando)
         {
+            macheteCollider.enabled = true;
             InvokeRepeating(nameof(RealizarCorte), 0f, 1.5f);
             estaCortando = true;
         }
         else if (!cortando && estaCortando)
         {
+            macheteCollider.enabled = false;
             CancelInvoke(nameof(RealizarCorte));
             estaCortando = false;
         }
     }
+
+    private void RealizarCorte ()
+    {
+        if (sugarcaneActual != null)
+        {
+            sugarcaneActual.ReducirResistencia(fuerza);
+            if (sugarcaneActual.EstaCortada())
+            {
+                Debug.Log("✅ Sugarcane cortada.");
+            }
+        }
+    }
+
+
+    public void Mover ()
+    {
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+
+        Vector3 movimiento = new Vector3(0, 0, v).normalized;
+        transform.Translate(movimiento * velocidad * Time.deltaTime);
+        transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * h);
+
+        if (v < 0)
+            meshTransform.localRotation = Quaternion.Euler(0, 180, 0);
+        else if (v > 0)
+            meshTransform.localRotation = Quaternion.identity;
+
+        float speed = Mathf.Clamp(Mathf.Abs(v), 0, 0.5f);
+        animator.SetFloat("Speed_f", speed);
+
+        bool estaMoviendose = Mathf.Abs(v) > 0.1f;
+
+        if (estaMoviendose)
+        {
+            if (estaCorriendo)
+            {
+                if (!correrAudioSource.isPlaying)
+                {
+                    correrAudioSource.clip = correrAudioClip;
+                    correrAudioSource.loop = true;
+                    correrAudioSource.Play();
+                }
+
+                if (pasosAudioSource.isPlaying)
+                    pasosAudioSource.Stop();
+            }
+            else
+            {
+                if (!pasosAudioSource.isPlaying)
+                {
+                    pasosAudioSource.clip = pasosAudioClip;
+                    pasosAudioSource.loop = true;
+                    pasosAudioSource.Play();
+                }
+
+                if (correrAudioSource.isPlaying)
+                    correrAudioSource.Stop();
+            }
+        }
+        else
+        {
+            if (pasosAudioSource.isPlaying)
+                pasosAudioSource.Stop();
+
+            if (correrAudioSource.isPlaying)
+                correrAudioSource.Stop();
+        }
+
+        if (!animator.GetBool("Cut_b"))
+        {
+            float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), h, Time.deltaTime * 5f);
+            animator.SetFloat("Head_Horizontal_f", giroCabeza);
+        }
+        else
+        {
+            animator.SetFloat("Head_Horizontal_f", 0f);
+        }
+    }
+
+
+    private void Correr ()
+    {
+        bool presionoShift = Input.GetKey(KeyCode.LeftShift);
+        bool puedeCorrer = presionoShift && !animator.GetBool("Cut_b");
+
+        if (puedeCorrer && !estaCorriendo)
+        {
+            estaCorriendo = true;
+            velocidad = velocidadBase * 2f;
+            animator.SetBool("Run_b", true);
+
+            if (correrAudioSource != null && correrAudioClip != null)
+            {
+                correrAudioSource.clip = correrAudioClip;
+                correrAudioSource.loop = true;
+                correrAudioSource.Play();
+                pasosAudioSource.Stop();
+            }
+
+        }
+        else if (!puedeCorrer && estaCorriendo)
+        {
+            estaCorriendo = false;
+            velocidad = velocidadBase;
+            animator.SetBool("Run_b", false);
+
+            if (correrAudioSource != null && correrAudioSource.isPlaying)
+                correrAudioSource.Stop();
+        }
+    }
+
 
     private void ManejarDeposito ()
     {
@@ -107,10 +240,6 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("🚫 No tienes sugarcanes para transferir.");
                 }
             }
-            else
-            {
-                Debug.Log("❌ El burro está demasiado lejos para interactuar.");
-            }
         }
     }
 
@@ -149,74 +278,10 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
-    public void Mover ()
+    private void Bailar ()
     {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-
-        Vector3 movimiento = new Vector3(0, 0, v).normalized;
-        transform.Translate(movimiento * velocidad * Time.deltaTime);
-        transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * h);
-
-        if (v < 0)
-            meshTransform.localRotation = Quaternion.Euler(0, 180, 0);
-        else if (v > 0)
-            meshTransform.localRotation = Quaternion.identity;
-
-        float speed = Mathf.Clamp(Mathf.Abs(v), 0, 0.5f);
-        animator.SetFloat("Speed_f", speed);
-
-        if (!animator.GetBool("Cut_b"))
-        {
-            float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), h, Time.deltaTime * 5f);
-            animator.SetFloat("Head_Horizontal_f", giroCabeza);
-        }
-        else
-        {
-            animator.SetFloat("Head_Horizontal_f", 0f);
-        }
-    }
-
-    private void RealizarCorte ()
-    {
-        if (sugarcaneActual != null)
-        {
-            sugarcaneActual.ReducirResistencia(fuerza);
-            if (sugarcaneActual.EstaCortada())
-            {
-                Debug.Log("✅ Sugarcane cortada.");
-            }
-        }
-    }
-
-    public void Recolectar ()
-    {
-        if (PuedeRecolectarCana())
-        {
-            sugarcanesRecolectados++;
-            Debug.Log($"🌱 Sugarcanes recolectadas: {sugarcanesRecolectados} / {maxSugarcanes}");
-            UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
-        }
-        else
-        {
-            Debug.Log("🚫 Límite de sugarcanes alcanzado.");
-        }
-    }
-
-    public void RecolectarItem ( GameObject item )
-    {
-        if (cargaActual < capacidadCarga && objetoTransportado == null)
-        {
-            Item datos = item.GetComponent<Item>();
-            if (datos != null && (cargaActual + datos.peso <= capacidadCarga))
-            {
-                objetoTransportado = item;
-                item.transform.SetParent(mano);
-                item.transform.localPosition = Vector3.zero;
-                cargaActual += datos.peso;
-            }
-        }
+        bool presionoTeclaBailar = Input.GetKey(KeyCode.B);
+        animator.SetBool("Dance_b", presionoTeclaBailar);
     }
 
     public void Depositar ( Transform destino )
@@ -250,6 +315,10 @@ public class PlayerController : MonoBehaviour
             Burro burro = animal.GetComponent<Burro>();
             if (burro != null)
             {
+                if (llamarAudioSource != null && llamarAudioClip != null)
+                {
+                    llamarAudioSource.PlayOneShot(llamarAudioClip, 1f);
+                }
                 burro.SeguirJugador(this.transform);
             }
         }
@@ -270,16 +339,54 @@ public class PlayerController : MonoBehaviour
         estaCercaDelBurro = estaCerca;
     }
 
+    public void Recolectar ()
+    {
+        if (PuedeRecolectarCana())
+        {
+            sugarcanesRecolectados++;
+            if (sugarcanesRecolectados < maxSugarcanes)
+            {
+                recolectarAudioSource.PlayOneShot(recolectarAudioClip, 1f);
+            }
+            recolectarAudioSource.PlayOneShot(recolectarAudioClip);
+            Debug.Log($"🌱 Sugarcanes recolectadas: {sugarcanesRecolectados} / {maxSugarcanes}");
+            UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
+        }
+        else
+        {
+            Debug.Log("🚫 Límite de sugarcanes alcanzado.");
+        }
+    }
+
+    public void RecolectarBotella ( GameObject item )
+    {
+        if (cargaActual < capacidadCarga && objetoTransportado == null)
+        {            
+            Item datos = item.GetComponent<Item>();
+            if (datos != null && (cargaActual + datos.peso <= capacidadCarga))
+            {
+                objetoTransportado = item;
+                item.transform.SetParent(mano);
+                item.transform.localPosition = Vector3.zero;
+                cargaActual += datos.peso;
+            }
+        }
+    }
+
     private void OnTriggerEnter ( Collider other )
     {
         if (other.CompareTag("Sugarcane"))
-            sugarcaneActual = other.GetComponent<Sugarcane>();
+        {
+            sugarcaneActual = other.GetComponent<Sugarcane>();            
+        }
 
         if (other.CompareTag("Destino"))
             destinoDeposito = other.transform;
 
         if (other.CompareTag("Item"))
-            RecolectarItem(other.gameObject);
+        {
+            RecolectarBotella(other.gameObject);
+        }
     }
 
     private void OnTriggerExit ( Collider other )
@@ -290,4 +397,5 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Destino"))
             destinoDeposito = null;
     }
+
 }
