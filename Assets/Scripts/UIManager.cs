@@ -13,8 +13,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI contadorProcesamientoTexto;
     [SerializeField] private TextMeshProUGUI porcentajeBarrilTexto;
     [SerializeField] private TextMeshProUGUI textoProgresoJarabe;
+    [SerializeField] private TextMeshProUGUI textoBotellasRotas;
     [SerializeField] private GameObject panelVictoria;
     [SerializeField] private TextMeshProUGUI textoVictoria;
+    [SerializeField] private GameObject panelDerrota;
+    [SerializeField] private TextMeshProUGUI textoDerrota;
+    [SerializeField] private GameObject panelPausa;
+    [SerializeField] private TextMeshProUGUI textoPausa;
 
 
     private void Awake ()
@@ -27,7 +32,6 @@ public class UIManager : MonoBehaviour
 
         Instance = this;
     }
-
 
 
     public void ActualizarCanaJugador ( int actual, int maximo )
@@ -87,8 +91,13 @@ public class UIManager : MonoBehaviour
         if (textoProgresoJarabe != null)
             textoProgresoJarabe.text = $"Jarabe {actual} / {total}";
     }
+    public void ActualizarBotellasRotas ( int actual, int total )
+    {
+        if (textoBotellasRotas != null)
+            textoBotellasRotas.text = $"Botellas rotas: {actual} / {total}";
+    }
 
-    public void MostrarVictoria ( string mensaje = "¡VICTORIA!" )
+    public void MostrarVictoria ( string mensaje )
     {
         if (panelVictoria != null)
             panelVictoria.SetActive(true);
@@ -96,5 +105,30 @@ public class UIManager : MonoBehaviour
         if (textoVictoria != null)
             textoVictoria.text = mensaje;
     }
+    public void MostrarDerrota ( string mensaje )
+    {
+        if (panelDerrota != null)
+            panelDerrota.SetActive(true);
+
+        if (textoDerrota != null)
+            textoDerrota.text = mensaje;
+    }
+    public void MostrarPausa (bool isPaused, string mensaje )
+    {
+        if (isPaused)
+        {
+
+            if (panelPausa != null)
+                panelPausa.SetActive(true);
+
+            if (textoPausa != null)
+                textoPausa.text = mensaje;
+        }
+        else
+        {
+            panelPausa.SetActive(false);
+        }
+    }
+
 
 }

@@ -860,6 +860,13 @@ MonoBehaviour:
   llamarAudioClip: {fileID: 8300000, guid: dfa881240cdb562488c93619cd35c500, type: 3}
   botellaPrefab: {fileID: 1188029298161190026, guid: 96364bd3711b5e240a933dc648dcb99f, type: 3}
   botellaLlenaPrefab: {fileID: 6658476667638081424, guid: 8b208571d1041964796c5b38a40a2d7a, type: 3}
+  posicionesEntrega:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  mesaDestino: {fileID: 0}
   posicionBotellaEnMano: {x: -0.32, y: 0, z: 0.01}
   rotacionBotellaEnMano: {x: 80, y: 120, z: -50}
 --- !u!82 &3102261643887767933

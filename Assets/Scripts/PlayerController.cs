@@ -15,7 +15,9 @@ public class PlayerController : MonoBehaviour
     private float cargaActual = 0f;
     private int sugarcanesRecolectados = 0;
     private int cantidadEntregada = 0;
+    private int botellasRotas = 0;
     private const int maxSugarcanes = 5;
+    private const int maxBotellasRotas = 3;
 
     private bool estaCortando = false;
     private bool estaCercaDelBurro = false;
@@ -27,8 +29,10 @@ public class PlayerController : MonoBehaviour
     private GameObject botellaCercana = null;
     private GameObject barrilCercano;
 
+
     public static bool EstaCortando { get; private set; }
 
+    [SerializeField] private Collider macheteCollider;
 
     [Header("Referencias")]
     public Transform mano;
@@ -45,22 +49,35 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioSource correrAudioSource;
     [SerializeField] private AudioClip pasosAudioClip;
     [SerializeField] private AudioClip correrAudioClip;
-    [SerializeField] private Collider macheteCollider;
     [SerializeField] private AudioSource recolectarAudioSource;
     [SerializeField] private AudioClip recolectarAudioClip;
     [SerializeField] private AudioSource llamarAudioSource;
     [SerializeField] private AudioClip llamarAudioClip;
-    [SerializeField] private GameObject botellaPrefab;
-    [SerializeField] private GameObject botellaLlenaPrefab;
+    [SerializeField] private AudioSource llenarAudioSource;
+    [SerializeField] private AudioClip llenarAudioClip;
+    [SerializeField] private AudioSource dejarBotellaAudioSource;
+    [SerializeField] private AudioClip dejarBotellaAudioClip;
+    [SerializeField] private AudioSource romperBotellaAudioSource;
+    [SerializeField] private AudioClip romperBotellaAudioClip;
+    [SerializeField] private AudioSource recogerBotellaAudioSource;
+    [SerializeField] private AudioClip recogerBotellaAudioClip;
 
     [Header("Entrega de Jarabe")]
     [SerializeField] private Transform[] posicionesEntrega; // 5 posiciones vacías sobre la mesa
     [SerializeField] private Transform mesaDestino;
 
 
-    [Header("Posición y rotación de la botella")]
+    [Header("Botella")]
+    [SerializeField] private GameObject botellaPrefab;
+    [SerializeField] private GameObject botellaLlenaPrefab;
     [SerializeField] private Vector3 posicionBotellaEnMano = new Vector3(0.22f, -0.77f, -0.7f);
     [SerializeField] private Vector3 rotacionBotellaEnMano = new Vector3(45f, 135f, 55f);
+    [SerializeField] private float duracionLlenado = 2f;
+    private bool estaLlenandoBotella = false; 
+    private bool estaSosteniendoBotella = false;
+    private Coroutine llenadoCoroutine = null;
+    private int cañasAntesDeLlenado = 0;
+    private Barril barrilEnProceso = null;
 
 
     void Start ()
@@ -73,19 +90,28 @@ public class PlayerController : MonoBehaviour
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
-    void FixedUpdate ()
+    void Update ()
     {
-        Mover();
-        Correr();
-        Bailar();
-        BailarB();
+        Pausar();
+
+        //Control de acciones
         ManejarCorte();
         ManejarDeposito();
         ManejarLlamadoBurro();
         ManejarRecogerDelBurro();
-        ManejarRecolectarBotella();
-        ManejarLlenadoBotella();
-        ManejarEntregaJarabe();
+        ManejarBotellaSostenida();
+
+        RecolectarBotella();
+        LlenarBotella();
+    }  
+    
+    void FixedUpdate ()
+    {
+        Mover();
+        Correr();
+
+        Bailar();
+        BailarB();                
     }
 
 
@@ -155,7 +181,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
     private void Correr ()
     {
         bool presionoShift = Input.GetKey(KeyCode.LeftShift);
@@ -219,6 +244,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void RecolectarCana ()
+    {
+        if (PuedeRecolectarCana())
+        {
+            sugarcanesRecolectados++;
+            if (sugarcanesRecolectados < maxSugarcanes)
+            {
+                recolectarAudioSource.PlayOneShot(recolectarAudioClip, 1f);
+            }
+            recolectarAudioSource.PlayOneShot(recolectarAudioClip);
+            Debug.Log($"🌱 Sugarcanes recolectadas: {sugarcanesRecolectados} / {maxSugarcanes}");
+            UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
+        }
+        else
+        {
+            Debug.Log("🚫 Límite de sugarcanes alcanzado.");
+        }
+    }
 
     private void ManejarDeposito ()
     {
@@ -299,21 +342,47 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    private void ManejarRecolectarBotella ()
-    {
-        if (Input.GetKeyDown(KeyCode.R) && botellaCercana != null && objetoTransportado == null)
-        {
-            Debug.Log("🍾 Intentando recoger botella cercana...");
 
+    private void ManejarBotellaSostenida ()
+    {
+        // Si se está presionando U y hay una botella en mano, está sosteniéndola
+        if (Input.GetKey(KeyCode.U) && objetoTransportado != null)
+        {
+            estaSosteniendoBotella = true;
+        }
+
+        // Si se suelta U, dejar de sostenerla y actuar según el contexto
+        if (Input.GetKeyUp(KeyCode.U) && objetoTransportado != null && estaSosteniendoBotella)
+        {
+            estaSosteniendoBotella = false;
+
+            if (estaLlenandoBotella)
+            {
+                CancelarLlenadoBotella();
+                SoltarYRomperBotella();
+            }
+            else if (estaCercaDeLaMesa && objetoTransportado.GetComponent<Item>()?.tipo == "BotellaLlena")
+            {
+                ManejarEntregaJarabe(objetoTransportado);
+            }
+            else
+            {
+                SoltarYRomperBotella();
+            }
+        }
+    }
+
+    private void RecolectarBotella ()
+    {
+        if (botellaCercana != null && objetoTransportado == null && Input.GetKeyDown(KeyCode.U))
+        {
             Item datos = botellaCercana.GetComponent<Item>();
             if (datos != null && (cargaActual + datos.peso <= capacidadCarga))
             {
-                // Instanciar una nueva botella en la mano
                 GameObject nuevaBotella = Instantiate(botellaPrefab, mano.position, mano.rotation);
                 nuevaBotella.transform.SetParent(mano);
                 nuevaBotella.transform.localPosition = posicionBotellaEnMano;
                 nuevaBotella.transform.localRotation = Quaternion.Euler(rotacionBotellaEnMano);
-
 
                 Rigidbody rb = nuevaBotella.GetComponent<Rigidbody>();
                 if (rb != null)
@@ -321,127 +390,177 @@ public class PlayerController : MonoBehaviour
                     rb.isKinematic = true;
                     rb.useGravity = false;
                 }
+
                 Collider col = nuevaBotella.GetComponent<Collider>();
-                if (col != null)
-                {
-                    col.enabled = false;
-                }
+                if (col != null) col.enabled = false;
 
                 objetoTransportado = nuevaBotella;
                 cargaActual += datos.peso;
 
-                // Ocultar o destruir la botella de la escena
-                //botellaCercana.SetActive(false);
                 Destroy(botellaCercana);
-                recolectarAudioSource.PlayOneShot(recolectarAudioClip, 1f);
-
-                UIManager.Instance.MostrarTextoInteraccion(false, "No hay objetos cerca");
+                recogerBotellaAudioSource.PlayOneShot(recogerBotellaAudioClip, 3f);
+                UIManager.Instance.MostrarTextoInteraccion(false, "");
                 Debug.Log("🍾 Botella recogida y colocada en la mano.");
                 botellaCercana = null;
             }
-            else
-            {
-                Debug.Log("🚫 No se pudo recoger la botella: falta espacio o datos nulos.");
-            }
         }
     }
 
-    private void ManejarLlenadoBotella ()
+    private void SoltarYRomperBotella ()
     {
-        if (Input.GetKeyDown(KeyCode.F) && objetoTransportado != null && barrilCercano != null)
+        objetoTransportado.transform.SetParent(null);
+
+        Rigidbody rb = objetoTransportado.GetComponent<Rigidbody>();
+        if (rb != null)
         {
-            Debug.Log("🛢️ Intentando llenar botella en barril cercano...");
-            Item item = objetoTransportado.GetComponent<Item>();
-            if (item != null && item.tipo == "Botella")
-            {
-                Barril barril = barrilCercano.GetComponent<Barril>();
-                if (barril != null && barril.canasActuales >= 5)
-                {
-                    // 1️⃣ Restar caña al barril
-                    barril.canasActuales -= 5;
-                    barril.ActualizarUI(); // 🔄 actualizar UI de porcentaje
-
-                    // 2️⃣ Eliminar botella vacía
-                    Destroy(objetoTransportado);
-
-                    // 3️⃣ Instanciar botella llena en la mano
-                    GameObject botellaLlena = Instantiate(botellaLlenaPrefab, mano.position, mano.rotation);
-                    botellaLlena.tag = "Item";
-                    botellaLlena.transform.SetParent(mano);
-                    botellaLlena.transform.localPosition = posicionBotellaEnMano;
-                    botellaLlena.transform.localRotation = Quaternion.Euler(rotacionBotellaEnMano);
-
-                    // 4️⃣ Desactivar física
-                    Rigidbody rb = botellaLlena.GetComponent<Rigidbody>();
-                    if (rb != null) { rb.isKinematic = true; rb.useGravity = false; }
-
-                    Collider col = botellaLlena.GetComponent<Collider>();
-                    if (col != null) { col.enabled = false; }
-
-                    // 5️⃣ Asignar como objeto en mano
-                    objetoTransportado = botellaLlena;
-
-                    // 6️⃣ Cambiar tipo a BotellaLlena
-                    Item nuevoItem = botellaLlena.GetComponent<Item>();
-                    if (nuevoItem != null)
-                        nuevoItem.tipo = "BotellaLlena";
-
-                    // 7️⃣ Ocultar UI
-                    UIManager.Instance.MostrarTextoInteraccion(false, "");
-
-                    Debug.Log("✅ Botella llenada con 5 cañas.");
-
-                    // 8️⃣ Notificar a la máquina si puede reanudar
-                    Maquina maquina = FindObjectOfType<Maquina>();
-                    if (maquina != null && maquina.TieneCanaPendiente() && !barril.EstaLleno)
-                    {
-                        maquina.ReanudarProcesamiento();
-                    }
-                }
-                else
-                {
-                    Debug.Log("🚫 No hay suficiente caña en el barril.");
-                }
-            }
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.AddForce(transform.forward * 2f + Vector3.up * 1f, ForceMode.Impulse); // fuerzaSoltar
         }
+
+        Collider col = objetoTransportado.GetComponent<Collider>();
+        if (col != null) col.enabled = true;
+
+        if (romperBotellaAudioSource != null && romperBotellaAudioClip != null)
+            romperBotellaAudioSource.PlayOneShot(romperBotellaAudioClip, 1f);
+
+        Destroy(objetoTransportado, 2f);
+        objetoTransportado = null;
+
+        botellasRotas++;
+        UIManager.Instance.ActualizarBotellasRotas(botellasRotas, maxBotellasRotas);
+
+        if (botellasRotas == maxBotellasRotas)
+        {
+            GameManager.Instance.PerderJuego();
+            Debug.Log("🏆 ¡Perdiste!");
+        }
+
+        Debug.Log("💥 Botella soltada y rota.");
     }
-    private void ManejarEntregaJarabe ()
+
+    private void LlenarBotella ()
     {
-        if (Input.GetKeyDown(KeyCode.E) && estaCercaDeLaMesa && objetoTransportado != null)
+        if (estaLlenandoBotella || objetoTransportado == null || barrilCercano == null) return;
+
+        Item item = objetoTransportado.GetComponent<Item>();
+        if (item != null && item.tipo == "Botella")
         {
-            Item item = objetoTransportado.GetComponent<Item>();
-            if (item != null && item.tipo == "BotellaLlena")
+            Barril barril = barrilCercano.GetComponent<Barril>();
+            if (barril != null && barril.canasActuales >= 5)
             {
-                if (cantidadEntregada < posicionesEntrega.Length)
-                {
-                    // Instanciar una copia de la botella llena en la posición de la mesa
-                    Transform punto = posicionesEntrega[cantidadEntregada];
-                    GameObject nuevaBotella = Instantiate(botellaLlenaPrefab, punto.position, punto.rotation);
-                    nuevaBotella.transform.SetParent(punto);
+                estaLlenandoBotella = true;
+                barrilEnProceso = barril;
+                cañasAntesDeLlenado = barril.canasActuales;
 
-                    cantidadEntregada++;
-                    UIManager.Instance.ActualizarProgresoJarabe(cantidadEntregada, posicionesEntrega.Length);
+                UIManager.Instance.MostrarTextoInteraccion(true, "Llenando botella...");
+                if (llenarAudioSource != null && llenarAudioClip != null)
+                    llenarAudioSource.PlayOneShot(llenarAudioClip, 1f);
 
-
-                    // Quitar botella de la mano
-                    Destroy(objetoTransportado);
-                    objetoTransportado = null;
-
-                    UIManager.Instance.MostrarTextoInteraccion(false, "");
-
-                    // Verificar victoria
-                    if (cantidadEntregada == posicionesEntrega.Length)
-                    {
-                        UIManager.Instance.MostrarVictoria();
-                        Debug.Log("🏆 ¡Ganaste el juego!");
-                    }
-                }
+                llenadoCoroutine = StartCoroutine(FinalizarLlenadoBotella(barril));
             }
         }
     }
 
+    private IEnumerator FinalizarLlenadoBotella ( Barril barril )
+    {
+        yield return new WaitForSeconds(duracionLlenado);
 
+        // Restar cañas
+        barril.canasActuales -= 5;
+        barril.ActualizarUI();
 
+        // Destruir botella vacía
+        Destroy(objetoTransportado);
+
+        // Instanciar botella llena
+        GameObject botellaLlena = Instantiate(botellaLlenaPrefab, mano.position, mano.rotation);
+        botellaLlena.tag = "Item";
+        botellaLlena.transform.SetParent(mano);
+        botellaLlena.transform.localPosition = posicionBotellaEnMano;
+        botellaLlena.transform.localRotation = Quaternion.Euler(rotacionBotellaEnMano);
+
+        // Desactivar física
+        Rigidbody rb = botellaLlena.GetComponent<Rigidbody>();
+        if (rb != null) { rb.isKinematic = true; rb.useGravity = false; }
+
+        Collider col = botellaLlena.GetComponent<Collider>();
+        if (col != null) { col.enabled = false; }
+
+        objetoTransportado = botellaLlena;
+        estaSosteniendoBotella = true;
+
+        Item nuevoItem = botellaLlena.GetComponent<Item>();
+        if (nuevoItem != null)
+            nuevoItem.tipo = "BotellaLlena";
+
+        // Ocultar texto
+        UIManager.Instance.MostrarTextoInteraccion(false, "");
+
+        // Reactivar procesamiento si es necesario
+        Maquina maquina = FindObjectOfType<Maquina>();
+        if (maquina != null && maquina.TieneCanaPendiente() && !barril.EstaLleno)
+        {
+            maquina.ReanudarProcesamiento();
+        }
+
+        Debug.Log("✅ Botella llenada con 5 cañas.");
+        estaLlenandoBotella = false;
+        llenadoCoroutine = null;
+        barrilEnProceso = null;
+    }
+
+    private void CancelarLlenadoBotella ()
+    {
+        if (llenadoCoroutine != null)
+        {
+            StopCoroutine(llenadoCoroutine);
+            llenadoCoroutine = null;
+        }
+
+        if (barrilEnProceso != null)
+        {
+            barrilEnProceso.canasActuales = cañasAntesDeLlenado;
+            barrilEnProceso.ActualizarUI();
+        }
+
+        estaLlenandoBotella = false;
+        barrilEnProceso = null;
+
+        UIManager.Instance.MostrarTextoInteraccion(false, "");
+        Debug.Log("⛔ Llenado de botella cancelado.");
+    }
+
+    private void ManejarEntregaJarabe ( GameObject botella )
+    {
+        if (!estaCercaDeLaMesa || botella == null) return;
+
+        Item item = botella.GetComponent<Item>();
+        if (item != null && item.tipo == "BotellaLlena")
+        {
+            if (cantidadEntregada < posicionesEntrega.Length)
+            {
+                Transform punto = posicionesEntrega[cantidadEntregada];
+                GameObject nuevaBotella = Instantiate(botellaLlenaPrefab, punto.position, punto.rotation);
+                nuevaBotella.transform.SetParent(punto);
+
+                dejarBotellaAudioSource.PlayOneShot(dejarBotellaAudioClip, 1f);
+                cantidadEntregada++;
+                UIManager.Instance.ActualizarProgresoJarabe(cantidadEntregada, posicionesEntrega.Length);
+
+                Destroy(botella);
+                objetoTransportado = null;
+
+                UIManager.Instance.MostrarTextoInteraccion(false, "");
+
+                if (cantidadEntregada == posicionesEntrega.Length)
+                {
+                    GameManager.Instance.GanarJuego();
+                    Debug.Log("🏆 ¡Ganaste el juego!");
+                }
+            }
+        }
+    }
 
     private void OnDrawGizmosSelected ()
     {
@@ -508,12 +627,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
-    public void EntregarPedido ()
-    {
-        Debug.Log("📦 Pedido entregado a la abuela.");
-    }
-
+        
     public bool PuedeRecolectarCana ()
     {
         return sugarcanesRecolectados < maxSugarcanes;
@@ -524,37 +638,11 @@ public class PlayerController : MonoBehaviour
         estaCercaDelBurro = estaCerca;
     }
 
-    public void Recolectar ()
+    public void Pausar ()
     {
-        if (PuedeRecolectarCana())
+        if(Input.GetKeyDown(KeyCode.Escape))
         {
-            sugarcanesRecolectados++;
-            if (sugarcanesRecolectados < maxSugarcanes)
-            {
-                recolectarAudioSource.PlayOneShot(recolectarAudioClip, 1f);
-            }
-            recolectarAudioSource.PlayOneShot(recolectarAudioClip);
-            Debug.Log($"🌱 Sugarcanes recolectadas: {sugarcanesRecolectados} / {maxSugarcanes}");
-            UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
-        }
-        else
-        {
-            Debug.Log("🚫 Límite de sugarcanes alcanzado.");
-        }
-    }
-
-    public void RecolectarBotella ( GameObject item )
-    {
-        if (cargaActual < capacidadCarga && objetoTransportado == null)
-        {            
-            Item datos = item.GetComponent<Item>();
-            if (datos != null && (cargaActual + datos.peso <= capacidadCarga))
-            {
-                objetoTransportado = item;
-                item.transform.SetParent(mano);
-                item.transform.localPosition = Vector3.zero;
-                cargaActual += datos.peso;
-            }
+            GameManager.Instance.PausarJuego();
         }
     }
 
@@ -571,17 +659,16 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Item"))
         {
             botellaCercana = other.gameObject;
-            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona R para recoger botella");
+            UIManager.Instance.MostrarTextoInteraccion(true, "Manten U para recoger botella");
         }
         if (other.CompareTag("Barril"))
         {
             barrilCercano = other.gameObject;
-            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona F para llenar la botella");
         }
         if (other.CompareTag("MesaEntrega"))
         {
             estaCercaDeLaMesa = true;
-            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona E para entregar jarabe");
+            UIManager.Instance.MostrarTextoInteraccion(true, "Suelta U para entregar el jarabe");
         }
 
     }

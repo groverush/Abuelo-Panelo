@@ -47,6 +47,9 @@ MonoBehaviour:
   textoCanaJugador: {fileID: 0}
   textoCanaBurro: {fileID: 0}
   textoMaquina: {fileID: 0}
-  textoInteraccionBurro: {fileID: 0}
+  textoInteraccion: {fileID: 0}
   contadorProcesamientoTexto: {fileID: 0}
   porcentajeBarrilTexto: {fileID: 0}
+  textoProgresoJarabe: {fileID: 0}
+  panelVictoria: {fileID: 0}
+  textoVictoria: {fileID: 0}
