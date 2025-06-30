@@ -13,7 +13,7 @@ public class Maquina : MonoBehaviour
 
     void Update ()
     {
-        if (!estaProcesando && canasEnMaquina >= cantidadProcesar && barril != null && !barril.EstaLleno)
+        if (!estaProcesando && PuedeProcesar())
         {
             StartCoroutine(ProcesarCanas());
         }
@@ -67,4 +67,23 @@ public class Maquina : MonoBehaviour
         estaProcesando = false;
     }
 
+    private bool PuedeProcesar ()
+    {
+        return canasEnMaquina >= cantidadProcesar && barril != null && !barril.EstaLleno;
+    }
+
+    public bool TieneCanaPendiente ()
+    {
+        return canasEnMaquina >= cantidadProcesar;
+    }
+
+    public void ReanudarProcesamiento ()
+    {
+        if (!estaProcesando && PuedeProcesar())
+        {
+            Debug.Log("Reanudando procesamiento...");
+            UIManager.Instance.MostrarContadorProcesamiento(true); // Mostrar el texto visual de inmediato
+            StartCoroutine(ProcesarCanas());
+        }
+    }
 }
