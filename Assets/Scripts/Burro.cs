@@ -8,6 +8,11 @@ public class Burro : MonoBehaviour
     [SerializeField] private float distanciaMinima = 2f;
     [SerializeField] private int capacidadMaxima = 50;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource pasosAudioSource;
+    [SerializeField] private AudioClip pasosAudioClip;
+
+
     private NavMeshAgent agent;
     private Animator animator;
 
@@ -44,6 +49,24 @@ public class Burro : MonoBehaviour
             }
 
             float velocidad = agent.velocity.magnitude;
+            // Reproduce sonido de pasos si se está moviendo
+            if (velocidad > 0.1f)
+            {
+                if (!pasosAudioSource.isPlaying)
+                {
+                    pasosAudioSource.clip = pasosAudioClip;
+                    pasosAudioSource.loop = true;
+                    pasosAudioSource.Play();
+                }
+            }
+            else
+            {
+                if (pasosAudioSource.isPlaying)
+                {
+                    pasosAudioSource.Stop();
+                }
+            }
+
             animator.SetFloat("Speed_f", velocidad, 0.1f, Time.deltaTime);
         }
 

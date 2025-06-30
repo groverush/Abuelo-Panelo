@@ -309,6 +309,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distanciaMinima: 4
   capacidadMaxima: 50
+  pasosAudioSource: {fileID: 6189122852657210167}
+  pasosAudioClip: {fileID: 8300000, guid: 60bc8b5de72ff7e44beead9f6a2bb89d, type: 3}
 --- !u!135 &8512125180809969721
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -342,7 +344,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -350,9 +352,9 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
+  DopplerLevel: 5
+  MinDistance: 4.9504952
+  MaxDistance: 16
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -387,7 +389,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

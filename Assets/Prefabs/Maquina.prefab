@@ -392,7 +392,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   capacidadInterna: 100
   cantidadProcesar: 5
-  tiempoProceso: 10
+  tiempoProceso: 3
   sonidoMotor: {fileID: 8317424387241498993}
   barril: {fileID: 0}
 --- !u!82 &8317424387241498993
@@ -408,7 +408,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 14259fb80f8c4c6449ead1a742414f5e, type: 3}
   m_Resource: {fileID: 8300000, guid: 14259fb80f8c4c6449ead1a742414f5e, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.472
   m_Pitch: 1
   Loop: 1
   Mute: 0
