@@ -22,7 +22,7 @@ public class Burro : MonoBehaviour
     private PlayerController jugadorCercano;
     private List<GameObject> inventario = new List<GameObject>();
 
-    void Start ()
+    void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
@@ -32,7 +32,7 @@ public class Burro : MonoBehaviour
         agent.avoidancePriority = 50; // valor medio para evitar empujones
     }
 
-    void Update ()
+    void Update()
     {
         if (yendoAlJugador)
         {
@@ -83,7 +83,7 @@ public class Burro : MonoBehaviour
         }
     }
 
-    public void SeguirJugador ( Transform jugador )
+    public void SeguirJugador(Transform jugador)
     {
         Vector3 posicionJugador = jugador.position;
         Vector3 direccion = (posicionJugador - transform.position).normalized;
@@ -91,7 +91,7 @@ public class Burro : MonoBehaviour
         yendoAlJugador = true;
     }
 
-    public bool RecibirItem ( GameObject item )
+    public bool RecibirItem(GameObject item)
     {
         if (inventario.Count >= capacidadMaxima) return false;
 
@@ -101,9 +101,9 @@ public class Burro : MonoBehaviour
         return true;
     }
 
-    public bool TieneCarga () => inventario.Count > 0;
+    public bool TieneCarga() => inventario.Count > 0;
 
-    public GameObject ExtraerItem ()
+    public GameObject ExtraerItem()
     {
         if (inventario.Count == 0) return null;
 
@@ -114,7 +114,7 @@ public class Burro : MonoBehaviour
         return item;
     }
 
-    private void TransferirACanaMaquina ( Maquina maquina )
+    private void TransferirACanaMaquina(Maquina maquina)
     {
         int espacio = maquina.EspacioDisponible();
         int transferidas = 0;
@@ -139,12 +139,12 @@ public class Burro : MonoBehaviour
         }
     }
 
-    private void ActualizarUI ()
+    private void ActualizarUI()
     {
         UIManager.Instance.ActualizarCanaBurro(inventario.Count, capacidadMaxima);
     }
 
-    private void OnTriggerEnter ( Collider other )
+    private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
@@ -169,7 +169,7 @@ public class Burro : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit ( Collider other )
+    private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
@@ -185,7 +185,7 @@ public class Burro : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected ()
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
 
