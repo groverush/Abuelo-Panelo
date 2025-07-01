@@ -144,6 +144,12 @@ public class Burro : MonoBehaviour
         UIManager.Instance.ActualizarCanaBurro(inventario.Count, capacidadMaxima);
     }
 
+    public void DetenerPasos()
+    {
+
+        pasosAudioSource.Stop();
+
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))

@@ -12,7 +12,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioClip victoriaAudioClip;
     [SerializeField] private AudioClip derrotaAudioClip;
     [SerializeField] private AudioSource camAudioSource; // Fuente de audio para la música de fondo
-    [SerializeField] private AudioSource burritoAudioSource; // Fuente de audio para la música de fondo
+    [SerializeField] private Burro burro;
+    [SerializeField] private PlayerController player;                                                    // Fuente de audio para la música de fondo
     [SerializeField] TextMeshProUGUI timeLeftText;
     float currCountdownValue;
     public bool isGameActive;
@@ -47,14 +48,20 @@ public class GameManager : MonoBehaviour
         currCountdownValue = countdownValue;
         while (currCountdownValue >= 0 && isGameActive)
         {
-            timeLeftText.text = "Tiempo de entrega: " + currCountdownValue.ToString("0");
+            // Calcula minutos y segundos
+            int minutes = Mathf.FloorToInt(currCountdownValue / 60);
+            int seconds = Mathf.FloorToInt(currCountdownValue % 60);
+
+            // Muestra en formato MM:SS
+            timeLeftText.text = "Tiempo de entrega: " + minutes.ToString("0") + ":" + seconds.ToString("00");
+
             yield return new WaitForSeconds(1.0f);
             currCountdownValue--;
+
             if (currCountdownValue == 0 && isGameActive)
             {
                 audioSource.PlayOneShot(derrotaAudioClip);
                 PerderJuego(); // Llama a PerderJuego cuando el tiempo se agote
-
             }
         }
     }
@@ -83,7 +90,7 @@ public class GameManager : MonoBehaviour
 
         isGameActive = true;
         timeLeftText.gameObject.SetActive(true);
-        StartCoroutine("StartCountdown", 240);
+        StartCoroutine("StartCountdown", 200);
 
     }
 
@@ -92,8 +99,11 @@ public class GameManager : MonoBehaviour
         isGameActive = false; // Detiene el juego
         Debug.Log("🎉 Has ganado el juego.");
         UIManager.Instance.MostrarVictoria("¡VICTORIA!");
-        burritoAudioSource.Stop(); // Detiene el audio del burrito si está sonando
-
+        if (burro != null && player != null)
+        {
+            player.DetenerPasos(); // nuevo método que crearás
+            burro.DetenerPasos(); // nuevo método que crearás
+        }
         if (camAudioSource != null) camAudioSource.Stop();
         audioSource.PlayOneShot(victoriaAudioClip);
         Time.timeScale = 0;
@@ -104,8 +114,12 @@ public class GameManager : MonoBehaviour
         Debug.Log("💀 Has perdido el juego.");
         UIManager.Instance.MostrarDerrota("¡DERROTA!");
         if (camAudioSource != null) camAudioSource.Stop();
-        burritoAudioSource.Stop(); // Detiene el audio del burrito si está sonando
         audioSource.PlayOneShot(derrotaAudioClip);
+        if (burro != null && player != null)
+        {
+            player.DetenerPasos(); // nuevo método que crearás
+            burro.DetenerPasos(); // nuevo método que crearás
+        }
         isGameActive = false; // Detiene el juego
         Time.timeScale = 0;
     }
@@ -126,8 +140,11 @@ public class GameManager : MonoBehaviour
     public void PausarJuego()
     {
         Debug.Log("Juego pausado.");
-        burritoAudioSource.Stop(); // Detiene el audio del burrito si está sonando
-
+        if (burro != null && player != null)
+        {
+            player.DetenerPasos(); // nuevo método que crearás
+            burro.DetenerPasos(); // nuevo método que crearás
+        }
         Time.timeScale = 0;
         UIManager.Instance.MostrarPausa(true, "Juego pausado");
     }
