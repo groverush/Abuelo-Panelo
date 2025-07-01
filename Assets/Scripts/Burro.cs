@@ -150,7 +150,7 @@ public class Burro : MonoBehaviour
         {
 
             Debug.Log($"Entró al trigger: {other.gameObject.name}");
-            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona E para guardar");
+            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona E para depositar en el burro");
 
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)

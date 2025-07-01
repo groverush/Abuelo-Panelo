@@ -16,8 +16,8 @@ public class PlayerController : MonoBehaviour
     private int sugarcanesRecolectados = 0;
     private int cantidadEntregada = 0;
     private int botellasRotas = 0;
-    private const int maxSugarcanes = 5;
-    private const int maxBotellasRotas = 3;
+    private int maxSugarcanes = 5;
+    private int maxBotellasRotas = 1;
 
     private bool estaCortando = false;
     private bool estaCercaDelBurro = false;
@@ -664,7 +664,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Item"))
         {
             botellaCercana = other.gameObject;
-            UIManager.Instance.MostrarTextoInteraccion(true, "Manten U para recoger botella");
+            UIManager.Instance.MostrarTextoInteraccion(true, "Manten U para recoger una botella");
         }
         if (other.CompareTag("Barril"))
         {
