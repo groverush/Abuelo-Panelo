@@ -9,13 +9,16 @@ EditorBuildSettings:
     path: Assets/Scenes/MenuPrincipal.unity
     guid: 166c609988370844ab024026b3c3e208
   - enabled: 1
-    path: Assets/Scenes/MainScene.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
+    path: Assets/Scenes/StoryScene.unity
+    guid: ae670030af026f542a6101b0a511004f
   - enabled: 1
     path: Assets/Scenes/Instrucciones.unity
     guid: 4ff78dce201329d43a4addbde7fc538e
   - enabled: 1
     path: Assets/Scenes/Creditos.unity
     guid: 3804fbb15e1e14a4380d81922dffe165
+  - enabled: 1
+    path: Assets/Scenes/MainScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

@@ -139,4 +139,11 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
         UIManager.Instance.MostrarPausa(false, "");
     }
+
+    public void IrAlMenuPrincipal()
+    {
+        Debug.Log("Volviendo al menú principal...");
+        Time.timeScale = 1; // Asegúrate de reanudar el tiempo antes de cambiar de escena
+        SceneManager.LoadScene("MenuPrincipal");
+    }
 }
