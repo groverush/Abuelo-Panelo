@@ -12,7 +12,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioClip victoriaAudioClip;
     [SerializeField] private AudioClip derrotaAudioClip;
     [SerializeField] private AudioSource camAudioSource; // Fuente de audio para la música de fondo
-    [SerializeField] private AudioSource burritoAudioSource; // Fuente de audio para la música de fondo
+    [SerializeField] private Burro burro;
+    [SerializeField] private PlayerController player;                                                    // Fuente de audio para la música de fondo
     [SerializeField] TextMeshProUGUI timeLeftText;
     float currCountdownValue;
     public bool isGameActive;
@@ -98,8 +99,11 @@ public class GameManager : MonoBehaviour
         isGameActive = false; // Detiene el juego
         Debug.Log("🎉 Has ganado el juego.");
         UIManager.Instance.MostrarVictoria("¡VICTORIA!");
-        burritoAudioSource.Stop(); // Detiene el audio del burrito si está sonando
-
+        if (burro != null && player != null)
+        {
+            player.DetenerPasos(); // nuevo método que crearás
+            burro.DetenerPasos(); // nuevo método que crearás
+        }
         if (camAudioSource != null) camAudioSource.Stop();
         audioSource.PlayOneShot(victoriaAudioClip);
         Time.timeScale = 0;
@@ -110,8 +114,12 @@ public class GameManager : MonoBehaviour
         Debug.Log("💀 Has perdido el juego.");
         UIManager.Instance.MostrarDerrota("¡DERROTA!");
         if (camAudioSource != null) camAudioSource.Stop();
-        burritoAudioSource.Stop(); // Detiene el audio del burrito si está sonando
         audioSource.PlayOneShot(derrotaAudioClip);
+        if (burro != null && player != null)
+        {
+            player.DetenerPasos(); // nuevo método que crearás
+            burro.DetenerPasos(); // nuevo método que crearás
+        }
         isGameActive = false; // Detiene el juego
         Time.timeScale = 0;
     }
@@ -132,8 +140,11 @@ public class GameManager : MonoBehaviour
     public void PausarJuego()
     {
         Debug.Log("Juego pausado.");
-        burritoAudioSource.Stop(); // Detiene el audio del burrito si está sonando
-
+        if (burro != null && player != null)
+        {
+            player.DetenerPasos(); // nuevo método que crearás
+            burro.DetenerPasos(); // nuevo método que crearás
+        }
         Time.timeScale = 0;
         UIManager.Instance.MostrarPausa(true, "Juego pausado");
     }

@@ -209,6 +209,22 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3277177897613268253, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
   m_PrefabInstance: {fileID: 1804871773}
   m_PrefabAsset: {fileID: 0}
+--- !u!82 &32817360 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 1150110317022434872, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
+  m_PrefabInstance: {fileID: 1804871773}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &32817361 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1416105130809782152, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
+  m_PrefabInstance: {fileID: 1804871773}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32817352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d7b9d5de04389940a9bf4fcc5ef9ff1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &138448508
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -511,6 +527,17 @@ AudioSource:
   m_CorrespondingSourceObject: {fileID: 3791395335334945888, guid: 05200d172441aa24cb609218450342cc, type: 3}
   m_PrefabInstance: {fileID: 535148491}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &245353095 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9117859726115665294, guid: 05200d172441aa24cb609218450342cc, type: 3}
+  m_PrefabInstance: {fileID: 535148491}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 245353092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26d1695d18d5a1a42b0540f7096f646f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &250241512
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5844,6 +5871,14 @@ PrefabInstance:
       value: 0.339
       objectReference: {fileID: 0}
     - target: {fileID: 9110870589260026989, guid: e78900cb976aa3443b06971810d03505, type: 3}
+      propertyPath: burro
+      value: 
+      objectReference: {fileID: 245353095}
+    - target: {fileID: 9110870589260026989, guid: e78900cb976aa3443b06971810d03505, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 32817361}
+    - target: {fileID: 9110870589260026989, guid: e78900cb976aa3443b06971810d03505, type: 3}
       propertyPath: timeLeftText
       value: 
       objectReference: {fileID: 1410256311}
@@ -5851,6 +5886,10 @@ PrefabInstance:
       propertyPath: camAudioSource
       value: 
       objectReference: {fileID: 963194231}
+    - target: {fileID: 9110870589260026989, guid: e78900cb976aa3443b06971810d03505, type: 3}
+      propertyPath: pasosAudioSource
+      value: 
+      objectReference: {fileID: 32817360}
     - target: {fileID: 9110870589260026989, guid: e78900cb976aa3443b06971810d03505, type: 3}
       propertyPath: burritoAudioSource
       value: 

@@ -277,6 +277,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void DetenerPasos()
+    {
+        if (pasosAudioSource.isPlaying)
+            pasosAudioSource.Stop();
+
+        if (correrAudioSource.isPlaying)
+            correrAudioSource.Stop();
+    }
     private void ManejarDeposito()
     {
         if (Input.GetKeyDown(KeyCode.E))
