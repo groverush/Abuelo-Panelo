@@ -3,7 +3,17 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Machete
+  - Destino
+  - Burro
+  - Sugarcane
+  - Item
+  - Suelo
+  - Maquina
+  - Botella
+  - Barril
+  - MesaEntrega
   layers:
   - Default
   - TransparentFX
@@ -11,10 +21,10 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Suelo
+  - Burro
+  - Sugarcane
   - 
   - 
   - 
