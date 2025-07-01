@@ -4110,7 +4110,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3119868314372022621, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 154.70001
+      value: 174.7
       objectReference: {fileID: 0}
     - target: {fileID: 3119868314372022621, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
       propertyPath: m_SizeDelta.y
@@ -4257,6 +4257,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6287666830442871511, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
+      propertyPath: m_text
+      value: 'Botellas rotas: 0/3'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6287666830442871511, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
       propertyPath: m_fontSize
       value: 20
       objectReference: {fileID: 0}
@@ -4302,7 +4306,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6485161315753176406, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 154.70001
+      value: 155.3
       objectReference: {fileID: 0}
     - target: {fileID: 6485161315753176406, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
       propertyPath: m_SizeDelta.y
@@ -4459,6 +4463,10 @@ PrefabInstance:
     - target: {fileID: 8182915095737746050, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -22
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236913132014575576, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
+      propertyPath: m_text
+      value: 'Jarabe: 0/5'
       objectReference: {fileID: 0}
     - target: {fileID: 8236913132014575576, guid: b9e88658caa91b94b9a6563caa256921, type: 3}
       propertyPath: m_fontSize

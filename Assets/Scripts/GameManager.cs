@@ -47,14 +47,20 @@ public class GameManager : MonoBehaviour
         currCountdownValue = countdownValue;
         while (currCountdownValue >= 0 && isGameActive)
         {
-            timeLeftText.text = "Tiempo de entrega: " + currCountdownValue.ToString("0");
+            // Calcula minutos y segundos
+            int minutes = Mathf.FloorToInt(currCountdownValue / 60);
+            int seconds = Mathf.FloorToInt(currCountdownValue % 60);
+
+            // Muestra en formato MM:SS
+            timeLeftText.text = "Tiempo de entrega: " + minutes.ToString("0") + ":" + seconds.ToString("00");
+
             yield return new WaitForSeconds(1.0f);
             currCountdownValue--;
+
             if (currCountdownValue == 0 && isGameActive)
             {
                 audioSource.PlayOneShot(derrotaAudioClip);
                 PerderJuego(); // Llama a PerderJuego cuando el tiempo se agote
-
             }
         }
     }
@@ -83,7 +89,7 @@ public class GameManager : MonoBehaviour
 
         isGameActive = true;
         timeLeftText.gameObject.SetActive(true);
-        StartCoroutine("StartCountdown", 240);
+        StartCoroutine("StartCountdown", 200);
 
     }
 
