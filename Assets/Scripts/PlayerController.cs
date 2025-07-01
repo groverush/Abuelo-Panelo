@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     private int cantidadEntregada = 0;
     private int botellasRotas = 0;
     private int maxSugarcanes = 5;
-    private int maxBotellasRotas = 1;
+    private int maxBotellasRotas = 3;
 
     private bool estaCortando = false;
     private bool estaCercaDelBurro = false;
@@ -184,7 +184,13 @@ public class PlayerController : MonoBehaviour
     private void Correr()
     {
         bool presionoShift = Input.GetKey(KeyCode.LeftShift);
+        bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
         bool puedeCorrer = presionoShift && !animator.GetBool("Cut_b");
+
+        if (estaBailando)
+        {
+            puedeCorrer = false;
+        }
 
         if (puedeCorrer && !estaCorriendo)
         {
@@ -214,7 +220,15 @@ public class PlayerController : MonoBehaviour
 
     private void ManejarCorte()
     {
+        bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
         bool cortando = Input.GetKey(KeyCode.Space);
+
+        // Si está bailando, no debe cortar
+        if (estaBailando)
+        {
+            cortando = false;
+        }
+
         animator.SetBool("Cut_b", cortando);
         EstaCortando = cortando;
 
@@ -374,35 +388,35 @@ public class PlayerController : MonoBehaviour
 
     private void RecolectarBotella()
     {
-        if (botellaCercana != null && objetoTransportado == null && Input.GetKeyDown(KeyCode.U))
+        if (botellaCercana != null && objetoTransportado == null && Input.GetKey(KeyCode.U))
         {
             Item datos = botellaCercana.GetComponent<Item>();
-            if (datos != null && (cargaActual + datos.peso <= capacidadCarga))
+            GameObject nuevaBotella = Instantiate(botellaPrefab, mano.position, mano.rotation);
+            nuevaBotella.transform.SetParent(mano);
+            nuevaBotella.transform.localPosition = posicionBotellaEnMano;
+            nuevaBotella.transform.localRotation = Quaternion.Euler(rotacionBotellaEnMano);
+
+            Rigidbody rb = nuevaBotella.GetComponent<Rigidbody>();
+            if (rb != null)
             {
-                GameObject nuevaBotella = Instantiate(botellaPrefab, mano.position, mano.rotation);
-                nuevaBotella.transform.SetParent(mano);
-                nuevaBotella.transform.localPosition = posicionBotellaEnMano;
-                nuevaBotella.transform.localRotation = Quaternion.Euler(rotacionBotellaEnMano);
-
-                Rigidbody rb = nuevaBotella.GetComponent<Rigidbody>();
-                if (rb != null)
-                {
-                    rb.isKinematic = true;
-                    rb.useGravity = false;
-                }
-
-                Collider col = nuevaBotella.GetComponent<Collider>();
-                if (col != null) col.enabled = false;
-
-                objetoTransportado = nuevaBotella;
-                cargaActual += datos.peso;
-
-                Destroy(botellaCercana);
-                recogerBotellaAudioSource.PlayOneShot(recogerBotellaAudioClip, 3f);
-                UIManager.Instance.MostrarTextoInteraccion(false, "");
-                Debug.Log("🍾 Botella recogida y colocada en la mano.");
-                botellaCercana = null;
+                rb.isKinematic = true;
+                rb.useGravity = false;
             }
+
+            Collider col = nuevaBotella.GetComponent<Collider>();
+            if (col != null) col.enabled = false;
+
+            objetoTransportado = nuevaBotella;
+            cargaActual += datos.peso;
+
+            Destroy(botellaCercana);
+            recogerBotellaAudioSource.PlayOneShot(recogerBotellaAudioClip, 3f);
+            UIManager.Instance.MostrarTextoInteraccion(false, "");
+            botellaCercana = null;
+
+            estaSosteniendoBotella = true;
+            Debug.Log("🍾 Botella recogida y colocada en la mano.");
+
         }
     }
 
@@ -583,14 +597,14 @@ public class PlayerController : MonoBehaviour
 
     private void Bailar()
     {
-        bool presionoTeclaBailar = Input.GetKey(KeyCode.B);
+        bool presionoTeclaBailar = Input.GetKey(KeyCode.I);
         animator.SetBool("Dance_b", presionoTeclaBailar);
     }
 
     private void BailarB()
     {
-        bool presionoTeclaBailar = Input.GetKey(KeyCode.N);
-        animator.SetBool("Danceb_b", presionoTeclaBailar);
+        bool presionoTeclaBailarB = Input.GetKey(KeyCode.O);
+        animator.SetBool("Danceb_b", presionoTeclaBailarB);
     }
 
     public void Depositar(Transform destino)
