@@ -1,4 +1,0 @@
-repository "AP Test/AP Test@4673929753896@cloud"
-  path "/"
-    br "/main"
-    co "/main"
