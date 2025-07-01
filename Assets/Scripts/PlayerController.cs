@@ -73,14 +73,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector3 posicionBotellaEnMano = new Vector3(0.22f, -0.77f, -0.7f);
     [SerializeField] private Vector3 rotacionBotellaEnMano = new Vector3(45f, 135f, 55f);
     [SerializeField] private float duracionLlenado = 2f;
-    private bool estaLlenandoBotella = false; 
+    private bool estaLlenandoBotella = false;
     private bool estaSosteniendoBotella = false;
     private Coroutine llenadoCoroutine = null;
     private int cañasAntesDeLlenado = 0;
     private Barril barrilEnProceso = null;
 
 
-    void Start ()
+    void Start()
     {
         if (animator == null)
             animator = GetComponent<Animator>();
@@ -90,7 +90,7 @@ public class PlayerController : MonoBehaviour
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
-    void Update ()
+    void Update()
     {
         Pausar();
 
@@ -103,19 +103,19 @@ public class PlayerController : MonoBehaviour
 
         RecolectarBotella();
         LlenarBotella();
-    }  
-    
-    void FixedUpdate ()
+    }
+
+    void FixedUpdate()
     {
         Mover();
         Correr();
 
         Bailar();
-        BailarB();                
+        BailarB();
     }
 
 
-    public void Mover ()
+    public void Mover()
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
@@ -181,7 +181,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Correr ()
+    private void Correr()
     {
         bool presionoShift = Input.GetKey(KeyCode.LeftShift);
         bool puedeCorrer = presionoShift && !animator.GetBool("Cut_b");
@@ -212,7 +212,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ManejarCorte ()
+    private void ManejarCorte()
     {
         bool cortando = Input.GetKey(KeyCode.Space);
         animator.SetBool("Cut_b", cortando);
@@ -232,7 +232,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void RealizarCorte ()
+    private void RealizarCorte()
     {
         if (sugarcaneActual != null)
         {
@@ -244,7 +244,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void RecolectarCana ()
+    public void RecolectarCana()
     {
         if (PuedeRecolectarCana())
         {
@@ -263,7 +263,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ManejarDeposito ()
+    private void ManejarDeposito()
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -307,7 +307,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ManejarLlamadoBurro ()
+    private void ManejarLlamadoBurro()
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -316,7 +316,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ManejarRecogerDelBurro ()
+    private void ManejarRecogerDelBurro()
     {
         if (Input.GetKeyDown(KeyCode.R) && animal != null)
         {
@@ -343,7 +343,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ManejarBotellaSostenida ()
+    private void ManejarBotellaSostenida()
     {
         // Si se está presionando U y hay una botella en mano, está sosteniéndola
         if (Input.GetKey(KeyCode.U) && objetoTransportado != null)
@@ -372,7 +372,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void RecolectarBotella ()
+    private void RecolectarBotella()
     {
         if (botellaCercana != null && objetoTransportado == null && Input.GetKeyDown(KeyCode.U))
         {
@@ -406,7 +406,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void SoltarYRomperBotella ()
+    private void SoltarYRomperBotella()
     {
         objetoTransportado.transform.SetParent(null);
 
@@ -433,13 +433,17 @@ public class PlayerController : MonoBehaviour
         if (botellasRotas == maxBotellasRotas)
         {
             GameManager.Instance.PerderJuego();
+            pasosAudioSource.Stop();
+            correrAudioSource.Stop();
+
+
             Debug.Log("🏆 ¡Perdiste!");
         }
 
         Debug.Log("💥 Botella soltada y rota.");
     }
 
-    private void LlenarBotella ()
+    private void LlenarBotella()
     {
         if (estaLlenandoBotella || objetoTransportado == null || barrilCercano == null) return;
 
@@ -462,7 +466,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private IEnumerator FinalizarLlenadoBotella ( Barril barril )
+    private IEnumerator FinalizarLlenadoBotella(Barril barril)
     {
         yield return new WaitForSeconds(duracionLlenado);
 
@@ -510,7 +514,7 @@ public class PlayerController : MonoBehaviour
         barrilEnProceso = null;
     }
 
-    private void CancelarLlenadoBotella ()
+    private void CancelarLlenadoBotella()
     {
         if (llenadoCoroutine != null)
         {
@@ -531,7 +535,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log("⛔ Llenado de botella cancelado.");
     }
 
-    private void ManejarEntregaJarabe ( GameObject botella )
+    private void ManejarEntregaJarabe(GameObject botella)
     {
         if (!estaCercaDeLaMesa || botella == null) return;
 
@@ -559,12 +563,13 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("🏆 ¡Ganaste el juego!");
                 }
             }
+
         }
     }
 
-    private void OnDrawGizmosSelected ()
+    private void OnDrawGizmosSelected()
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
                 if (mano != null)
                 {
                     Gizmos.color = Color.cyan;
@@ -573,22 +578,22 @@ public class PlayerController : MonoBehaviour
                     Gizmos.DrawWireCube(Vector3.zero, new Vector3(0.1f, 0.25f, 0.1f)); // Tamaño estimado de botella
                     Gizmos.DrawRay(Vector3.zero, Vector3.forward * 0.3f); // Dirección hacia adelante (pico)
                 }
-        #endif
+#endif
     }
 
-    private void Bailar ()
+    private void Bailar()
     {
         bool presionoTeclaBailar = Input.GetKey(KeyCode.B);
         animator.SetBool("Dance_b", presionoTeclaBailar);
     }
 
-    private void BailarB ()
+    private void BailarB()
     {
         bool presionoTeclaBailar = Input.GetKey(KeyCode.N);
         animator.SetBool("Danceb_b", presionoTeclaBailar);
     }
 
-    public void Depositar ( Transform destino )
+    public void Depositar(Transform destino)
     {
         if (objetoTransportado != null)
         {
@@ -612,7 +617,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void LlamarAnimal ()
+    public void LlamarAnimal()
     {
         if (animal != null)
         {
@@ -627,26 +632,26 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-        
-    public bool PuedeRecolectarCana ()
+
+    public bool PuedeRecolectarCana()
     {
         return sugarcanesRecolectados < maxSugarcanes;
     }
 
-    public void SetCercaniaBurro ( bool estaCerca )
+    public void SetCercaniaBurro(bool estaCerca)
     {
         estaCercaDelBurro = estaCerca;
     }
 
-    public void Pausar ()
+    public void Pausar()
     {
-        if(Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             GameManager.Instance.PausarJuego();
         }
     }
 
-    private void OnTriggerEnter ( Collider other )
+    private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Sugarcane"))
         {
@@ -673,7 +678,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private void OnTriggerExit ( Collider other )
+    private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Sugarcane"))
             sugarcaneActual = null;
