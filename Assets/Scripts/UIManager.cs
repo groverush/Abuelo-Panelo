@@ -1,6 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
@@ -20,9 +20,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoDerrota;
     [SerializeField] private GameObject panelPausa;
     [SerializeField] private TextMeshProUGUI textoPausa;
+    [SerializeField] private Button continuarButton;
+    [SerializeField] private Button reiniciarButton;
 
-
-    private void Awake ()
+    private void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -34,38 +35,38 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public void ActualizarCanaJugador ( int actual, int maximo )
+    public void ActualizarCanaJugador(int actual, int maximo)
     {
         if (textoCanaJugador != null)
             textoCanaJugador.text = $"Jugador: {actual} / {maximo}";
     }
 
-    public void ActualizarCanaBurro ( int actual, int maximo )
+    public void ActualizarCanaBurro(int actual, int maximo)
     {
         if (textoCanaBurro != null)
             textoCanaBurro.text = $"Burro: {actual} / {maximo}";
     }
 
-    public void MostrarTextoInteraccion( bool mostrar, string texto )
+    public void MostrarTextoInteraccion(bool mostrar, string texto)
     {
         if (textoInteraccion != null)
             textoInteraccion.gameObject.SetActive(mostrar);
         textoInteraccion.text = texto;
     }
-    public void ActualizarCanaMaquina ( int actual, int maximo )
+    public void ActualizarCanaMaquina(int actual, int maximo)
     {
         if (textoMaquina != null)
             textoMaquina.text = $"Máquina: {actual} / {maximo}";
     }
 
 
-    public void ActualizarContadorProcesamiento ( int segundos )
+    public void ActualizarContadorProcesamiento(int segundos)
     {
         if (contadorProcesamientoTexto != null)
             contadorProcesamientoTexto.text = $"Procesando: {segundos}s";
     }
 
-    public void ActualizarPorcentajeBarril ( int actual, int maximo )
+    public void ActualizarPorcentajeBarril(int actual, int maximo)
     {
         if (porcentajeBarrilTexto != null)
         {
@@ -74,30 +75,30 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void MostrarContadorProcesamiento ( bool mostrar )
+    public void MostrarContadorProcesamiento(bool mostrar)
     {
         if (contadorProcesamientoTexto != null)
             contadorProcesamientoTexto.gameObject.SetActive(mostrar);
     }
 
-    public void MostrarPorcentajeBarril ( bool mostrar )
+    public void MostrarPorcentajeBarril(bool mostrar)
     {
         if (porcentajeBarrilTexto != null)
             porcentajeBarrilTexto.gameObject.SetActive(mostrar);
     }
 
-    public void ActualizarProgresoJarabe ( int actual, int total )
+    public void ActualizarProgresoJarabe(int actual, int total)
     {
         if (textoProgresoJarabe != null)
             textoProgresoJarabe.text = $"Jarabe {actual} / {total}";
     }
-    public void ActualizarBotellasRotas ( int actual, int total )
+    public void ActualizarBotellasRotas(int actual, int total)
     {
         if (textoBotellasRotas != null)
             textoBotellasRotas.text = $"Botellas rotas: {actual} / {total}";
     }
 
-    public void MostrarVictoria ( string mensaje )
+    public void MostrarVictoria(string mensaje)
     {
         if (panelVictoria != null)
             panelVictoria.SetActive(true);
@@ -105,7 +106,7 @@ public class UIManager : MonoBehaviour
         if (textoVictoria != null)
             textoVictoria.text = mensaje;
     }
-    public void MostrarDerrota ( string mensaje )
+    public void MostrarDerrota(string mensaje)
     {
         if (panelDerrota != null)
             panelDerrota.SetActive(true);
@@ -113,7 +114,7 @@ public class UIManager : MonoBehaviour
         if (textoDerrota != null)
             textoDerrota.text = mensaje;
     }
-    public void MostrarPausa (bool isPaused, string mensaje )
+    public void MostrarPausa(bool isPaused, string mensaje)
     {
         if (isPaused)
         {
@@ -129,6 +130,13 @@ public class UIManager : MonoBehaviour
             panelPausa.SetActive(false);
         }
     }
-
+    // public void ReasignarReferencias()
+    // {
+    //     // Reasigna botones, textos u otros componentes de la nueva escena
+    //     // Ejemplo:
+    //     continuarButton = GameObject.Find("BotonContinuar").GetComponent<Button>();
+    //     reiniciarButton = GameObject.Find("BotonReiniciar").GetComponent<Button>();
+    //     // y vuelve a suscribir sus listeners si es necesario
+    // }
 
 }
