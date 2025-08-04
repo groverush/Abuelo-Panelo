@@ -144,13 +144,19 @@ public class Burro : MonoBehaviour
         UIManager.Instance.ActualizarCanaBurro(inventario.Count, capacidadMaxima);
     }
 
+    public void DetenerPasos()
+    {
+
+        pasosAudioSource.Stop();
+
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
 
             Debug.Log($"Entró al trigger: {other.gameObject.name}");
-            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona E para guardar");
+            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona E para depositar en el burro");
 
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
