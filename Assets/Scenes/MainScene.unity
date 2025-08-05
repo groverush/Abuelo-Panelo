@@ -975,6 +975,10 @@ PrefabInstance:
       value: 37.973927
       objectReference: {fileID: 0}
     - target: {fileID: 1025966335294820555, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1025966335294820555, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_Center.x
       value: 0.000003191898
       objectReference: {fileID: 0}
@@ -986,13 +990,57 @@ PrefabInstance:
       propertyPath: m_Center.z
       value: 5.4377227
       objectReference: {fileID: 0}
+    - target: {fileID: 1025966335294820555, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 7823a3f1a3469ec418fb81f2028d6520, type: 2}
     - target: {fileID: 2927802767935804114, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_Name
       value: Burro 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4645919583942462069, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Mass
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4645919583942462069, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Constraints
+      value: 80
+      objectReference: {fileID: 0}
     - target: {fileID: 5366612937648359760, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_Radius
-      value: 41.16
+      value: 31.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5366612937648359760, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5366612937648359760, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Center.x
+      value: 0.9800002
+      objectReference: {fileID: 0}
+    - target: {fileID: 5366612937648359760, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Center.z
+      value: 3.6436079
+      objectReference: {fileID: 0}
+    - target: {fileID: 5366612937648359760, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 7823a3f1a3469ec418fb81f2028d6520, type: 2}
+    - target: {fileID: 5527991709872906317, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Height
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527991709872906317, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Radius
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527991709872906317, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_Acceleration
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527991709872906317, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: m_StoppingDistance
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6642829089225102998, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_LocalScale.x
@@ -1264,6 +1312,10 @@ PrefabInstance:
     - target: {fileID: 1893950574393704028, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
       propertyPath: m_Name
       value: Main Scenario
+      objectReference: {fileID: 0}
+    - target: {fileID: 2708415112433279306, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -17
       objectReference: {fileID: 0}
     - target: {fileID: 5233674378681905348, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
       propertyPath: m_LocalPosition.y

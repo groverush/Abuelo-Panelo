@@ -32,7 +32,7 @@ public class Burro : MonoBehaviour
         agent.avoidancePriority = 50; // valor medio para evitar empujones
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (yendoAlJugador)
         {
