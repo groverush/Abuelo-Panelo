@@ -906,9 +906,21 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1751435301631379648, guid: bef5daf0191dd464282c25a7e19b3a84, type: 3}
+      propertyPath: m_VoxelSize
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751435301631379648, guid: bef5daf0191dd464282c25a7e19b3a84, type: 3}
+      propertyPath: m_DefaultArea
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751435301631379648, guid: bef5daf0191dd464282c25a7e19b3a84, type: 3}
       propertyPath: m_NavMeshData
       value: 
       objectReference: {fileID: 23800000, guid: 87af88fc25fed364988b136c6b68b018, type: 2}
+    - target: {fileID: 1751435301631379648, guid: bef5daf0191dd464282c25a7e19b3a84, type: 3}
+      propertyPath: m_UseGeometry
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3475911417544326516, guid: bef5daf0191dd464282c25a7e19b3a84, type: 3}
       propertyPath: m_Name
       value: NavMesh
@@ -975,10 +987,6 @@ PrefabInstance:
       value: 37.973927
       objectReference: {fileID: 0}
     - target: {fileID: 1025966335294820555, guid: 05200d172441aa24cb609218450342cc, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1025966335294820555, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_Center.x
       value: 0.000003191898
       objectReference: {fileID: 0}
@@ -1008,11 +1016,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5366612937648359760, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_Radius
-      value: 31.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5366612937648359760, guid: 05200d172441aa24cb609218450342cc, type: 3}
-      propertyPath: m_Enabled
-      value: 1
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5366612937648359760, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_Center.x
@@ -1028,11 +1032,11 @@ PrefabInstance:
       objectReference: {fileID: 13400000, guid: 7823a3f1a3469ec418fb81f2028d6520, type: 2}
     - target: {fileID: 5527991709872906317, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_Height
-      value: 2
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 5527991709872906317, guid: 05200d172441aa24cb609218450342cc, type: 3}
-      propertyPath: m_Radius
-      value: 1
+      propertyPath: m_BaseOffset
+      value: -34
       objectReference: {fileID: 0}
     - target: {fileID: 5527991709872906317, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: m_Acceleration
@@ -1097,6 +1101,10 @@ PrefabInstance:
     - target: {fileID: 9117859726115665294, guid: 05200d172441aa24cb609218450342cc, type: 3}
       propertyPath: capacidadMaxima
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 9117859726115665294, guid: 05200d172441aa24cb609218450342cc, type: 3}
+      propertyPath: distanciaMinima
+      value: 2.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1424,8 +1432,80 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3892592967783549075, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
       insertIndex: -1
       addedObject: {fileID: 851377264}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5907223670002304830, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 774616695}
+    - targetCorrespondingSourceObject: {fileID: 5740070306101519091, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 774616694}
+    - targetCorrespondingSourceObject: {fileID: 1878383561536349080, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 774616693}
   m_SourcePrefab: {fileID: 100100000, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
+--- !u!1 &774616690 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1878383561536349080, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
+  m_PrefabInstance: {fileID: 774616689}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &774616691 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5740070306101519091, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
+  m_PrefabInstance: {fileID: 774616689}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &774616692 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5907223670002304830, guid: ef6f5fff6507d664c8719db808350b48, type: 3}
+  m_PrefabInstance: {fileID: 774616689}
+  m_PrefabAsset: {fileID: 0}
+--- !u!208 &774616693
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 774616690}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
+--- !u!208 &774616694
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 774616691}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 5.7390003, y: 2.3990002, z: 3.2140002}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 2.3990002, z: 0.21400002}
+  m_TimeToStationary: 0.5
+--- !u!208 &774616695
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 774616692}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 4.202, y: 5.089, z: 6.681}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.09200001, y: 3.8490002, z: -0.49}
+  m_TimeToStationary: 0.5
 --- !u!1001 &851377263
 PrefabInstance:
   m_ObjectHideFlags: 0

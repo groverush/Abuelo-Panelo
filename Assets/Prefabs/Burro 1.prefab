@@ -730,9 +730,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2927802767935804114}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 11.120068, y: 2.6, z: -20.851646}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6571192398331931337}
@@ -776,15 +776,15 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 20
   m_Speed: 6
-  m_Acceleration: 4
+  m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 2
+  m_StoppingDistance: 0.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 35.07
-  m_BaseOffset: -32.2
+  m_Height: 36
+  m_BaseOffset: -34
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!65 &1025966335294820555
@@ -794,7 +794,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2927802767935804114}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7823a3f1a3469ec418fb81f2028d6520, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -806,8 +806,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 11.64113, y: 37.775337, z: 43.95216}
-  m_Center: {x: 0, y: 49.7, z: 5.0158215}
+  m_Size: {x: 11.64113, y: 32.94844, z: 37.973927}
+  m_Center: {x: 0.000003191898, y: 52.113464, z: 5.4377227}
 --- !u!54 &4645919583942462069
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -816,7 +816,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2927802767935804114}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -833,7 +833,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &9117859726115665294
 MonoBehaviour:
@@ -847,8 +847,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d1695d18d5a1a42b0540f7096f646f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanciaMinima: 4
-  capacidadMaxima: 50
+  distanciaMinima: 2.5
+  capacidadMaxima: 15
   pasosAudioSource: {fileID: 3791395335334945888}
   pasosAudioClip: {fileID: 8300000, guid: 60bc8b5de72ff7e44beead9f6a2bb89d, type: 3}
 --- !u!135 &5366612937648359760
@@ -858,7 +858,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2927802767935804114}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7823a3f1a3469ec418fb81f2028d6520, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -870,8 +870,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 50
-  m_Center: {x: 0, y: 50, z: 0}
+  m_Radius: 30
+  m_Center: {x: 0.9800002, y: 50, z: 3.6436079}
 --- !u!82 &3791395335334945888
 AudioSource:
   m_ObjectHideFlags: 0
