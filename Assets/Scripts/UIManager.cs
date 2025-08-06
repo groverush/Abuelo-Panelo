@@ -38,13 +38,13 @@ public class UIManager : MonoBehaviour
     public void ActualizarCanaJugador(int actual, int maximo)
     {
         if (textoCanaJugador != null)
-            textoCanaJugador.text = $"Jugador: {actual} / {maximo}";
+            textoCanaJugador.text = $" {actual} / {maximo}";
     }
 
     public void ActualizarCanaBurro(int actual, int maximo)
     {
         if (textoCanaBurro != null)
-            textoCanaBurro.text = $"Burro: {actual} / {maximo}";
+            textoCanaBurro.text = $" {actual} / {maximo}";
     }
 
     public void MostrarTextoInteraccion(bool mostrar, string texto)
@@ -90,7 +90,7 @@ public class UIManager : MonoBehaviour
     public void ActualizarProgresoJarabe(int actual, int total)
     {
         if (textoProgresoJarabe != null)
-            textoProgresoJarabe.text = $"Jarabe {actual} / {total}";
+            textoProgresoJarabe.text = $"{actual} / {total}";
     }
     public void ActualizarBotellasRotas(int actual, int total)
     {

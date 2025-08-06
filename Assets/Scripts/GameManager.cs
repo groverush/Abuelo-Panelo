@@ -53,7 +53,8 @@ public class GameManager : MonoBehaviour
             int seconds = Mathf.FloorToInt(currCountdownValue % 60);
 
             // Muestra en formato MM:SS
-            timeLeftText.text = "Tiempo de entrega: " + minutes.ToString("0") + ":" + seconds.ToString("00");
+            /*timeLeftText.text = "Tiempo de entrega: " + minutes.ToString("0") + ":" + seconds.ToString("00");*/
+            timeLeftText.text =  minutes.ToString("0") + ":" + seconds.ToString("00");
 
             yield return new WaitForSeconds(1.0f);
             currCountdownValue--;

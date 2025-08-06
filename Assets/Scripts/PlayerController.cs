@@ -524,7 +524,7 @@ public class PlayerController : MonoBehaviour
         UIManager.Instance.MostrarTextoInteraccion(false, "");
 
         // Reactivar procesamiento si es necesario
-        Maquina maquina = FindObjectOfType<Maquina>();
+        Maquina maquina = FindFirstObjectByType<Maquina>();
         if (maquina != null && maquina.TieneCanaPendiente() && !barril.EstaLleno)
         {
             maquina.ReanudarProcesamiento();
