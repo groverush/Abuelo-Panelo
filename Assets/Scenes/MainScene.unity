@@ -8069,7 +8069,7 @@ MonoBehaviour:
     m_ActionId: c69c9524-8e55-47aa-8fa7-e1f952464e80
     m_ActionName: 'Player/Give[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 1
-  m_DefaultControlScheme: 
+  m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
