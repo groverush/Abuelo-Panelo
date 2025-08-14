@@ -7892,9 +7892,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 245353092}
     - target: {fileID: 1416105130809782152, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
+      propertyPath: velocidad
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1416105130809782152, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
       propertyPath: mesaDestino
       value: 
       objectReference: {fileID: 1188815629}
+    - target: {fileID: 1416105130809782152, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
+      propertyPath: velocidadGiro
+      value: 107
+      objectReference: {fileID: 0}
     - target: {fileID: 1416105130809782152, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
       propertyPath: 'posicionesEntrega.Array.data[0]'
       value: 
@@ -8002,8 +8010,69 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3277177897613268253, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1804871775}
   m_SourcePrefab: {fileID: 100100000, guid: 42f36dc9757bddd45af60a866e2cae59, type: 3}
+--- !u!114 &1804871775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32817352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 5063a288977c7bb4f9f0017728de1f01, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b3e92705-4519-495f-b84b-3ba5eaf4f3c3
+    m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3344fc5d-1b1d-436e-91f8-722b910fcdd4
+    m_ActionName: 'Player/Cut[/Keyboard/space,/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4d678d27-0229-4b9d-8444-39e98eb7418f
+    m_ActionName: 'Player/Dance 1[/Keyboard/i]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a902db20-c095-448b-9bce-230e57ae17a4
+    m_ActionName: 'Player/Dance 2[/Keyboard/o]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 5e3b1adb-0d60-47c4-a14a-786183565ac7
+    m_ActionName: 'Player/HoldBottle[/Keyboard/u]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 752c3f32-e681-472f-afb3-92940c8ba54f
+    m_ActionName: 'Player/Call[/Keyboard/q]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c69c9524-8e55-47aa-8fa7-e1f952464e80
+    m_ActionName: 'Player/Give[/Keyboard/e]'
+  m_NeverAutoSwitchControlSchemes: 1
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &1819066425
 GameObject:
   m_ObjectHideFlags: 0

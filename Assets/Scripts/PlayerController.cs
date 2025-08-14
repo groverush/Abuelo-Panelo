@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,8 +19,6 @@ public class PlayerController : MonoBehaviour
     private int botellasRotas = 0;
     private int maxSugarcanes = 5;
     private int maxBotellasRotas = 3;
-
-    private bool estaCortando = false;
     private bool estaCercaDelBurro = false;
     private bool estaCorriendo = false;
     private bool estaCercaDeLaMesa = false;
@@ -29,6 +28,17 @@ public class PlayerController : MonoBehaviour
     private GameObject botellaCercana = null;
     private GameObject barrilCercano;
 
+    [Header("Input Actions")]
+    private PlayerInput playerInput;
+    private InputAction moveAction;
+    private InputAction runAction;
+    private InputAction cutAction;
+    private InputAction callAction;
+    private InputAction giveAction; 
+    private InputAction danceAction; 
+    private InputAction danceBAction; 
+    private InputAction pauseAction;
+    private InputAction recollectAction; 
 
     public static bool EstaCortando { get; private set; }
 
@@ -79,6 +89,45 @@ public class PlayerController : MonoBehaviour
     private int cañasAntesDeLlenado = 0;
     private Barril barrilEnProceso = null;
 
+    private void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();
+
+        moveAction = playerInput.actions["Move"];
+
+        cutAction = playerInput.actions["Cut"];
+        cutAction.performed += ManejarCorte;   // cuando se presiona
+        cutAction.canceled += ManejarCorte;    // cuando se suelta
+
+        callAction = playerInput.actions["Call"];
+        callAction.performed += ManejarLlamadoBurro;
+
+        giveAction = playerInput.actions["Give"];
+        giveAction.performed += ManejarDeposito;
+
+        runAction = playerInput.actions["Run"];
+        runAction.performed += Correr;          // cuando se presiona
+        runAction.canceled += Correr;   
+                // cuando se suelta
+        danceAction = playerInput.actions["Dance 1"];
+        danceAction.performed += Bailar;          // cuando se presiona
+        danceAction.canceled += Bailar;   
+                // cuando se suelta
+        danceBAction = playerInput.actions["Dance 2"];
+        danceBAction.performed += BailarB;      // cuando se presiona
+        danceBAction.canceled += BailarB;  // cuando se suelta
+                 
+        pauseAction = playerInput.actions["Pause"];
+        pauseAction.performed += Pausar; // cuando se presiona
+
+        recollectAction = playerInput.actions["HoldBottle"];
+        recollectAction.performed += ManejarBotellaSostenida; // cuando se presiona
+        recollectAction.canceled += ManejarBotellaSostenida; // cuando se suelta
+        recollectAction.performed += RecolectarBotella; // cuando se presiona
+        recollectAction.canceled += RecolectarBotella; // cuando se suelta
+
+    }
+
 
     void Start()
     {
@@ -90,35 +139,22 @@ public class PlayerController : MonoBehaviour
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
-    void Update()
-    {
-        Pausar();
-
-        //Control de acciones
-        ManejarCorte();
-        ManejarDeposito();
-        ManejarLlamadoBurro();
-        ManejarRecogerDelBurro();
-        ManejarBotellaSostenida();
-
-        RecolectarBotella();
-        LlenarBotella();
-    }
+    // void Update()
+    // {   
+    // }
 
     void FixedUpdate()
     {
         Mover();
-        Correr();
-
-        Bailar();
-        BailarB();
+        LlenarBotella();
     }
 
 
-    public void Mover()
+    private void Mover()
     {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+        Vector2 input = playerInput.actions["Move"].ReadValue<Vector2>();
+        float h = input.x;
+        float v = input.y;
 
         Vector3 movimiento = new Vector3(0, 0, v).normalized;
         transform.Translate(movimiento * velocidad * Time.deltaTime);
@@ -181,9 +217,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Correr()
+    private void Correr(InputAction.CallbackContext context)
     {
-        bool presionoShift = Input.GetKey(KeyCode.LeftShift);
+        bool presionoShift = context.ReadValue<float>() > 0.5f;
         bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
         bool puedeCorrer = presionoShift && !animator.GetBool("Cut_b");
 
@@ -218,31 +254,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ManejarCorte()
+    public void ManejarCorte(InputAction.CallbackContext context)
     {
         bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
-        bool cortando = Input.GetKey(KeyCode.Space);
 
-        // Si está bailando, no debe cortar
-        if (estaBailando)
+        if (estaBailando) return;
+
+        if (context.performed)
         {
-            cortando = false;
-        }
-
-        animator.SetBool("Cut_b", cortando);
-        EstaCortando = cortando;
-
-        if (cortando && !estaCortando)
-        {
+            animator.SetBool("Cut_b", true);
+            EstaCortando = true;
             macheteCollider.enabled = true;
+            
             InvokeRepeating(nameof(RealizarCorte), 0f, 1.5f);
-            estaCortando = true;
         }
-        else if (!cortando && estaCortando)
+        else if (context.canceled)
         {
+            animator.SetBool("Cut_b", false);
+            EstaCortando = false;
             macheteCollider.enabled = false;
+
             CancelInvoke(nameof(RealizarCorte));
-            estaCortando = false;
         }
     }
 
@@ -285,9 +317,9 @@ public class PlayerController : MonoBehaviour
         if (correrAudioSource.isPlaying)
             correrAudioSource.Stop();
     }
-    private void ManejarDeposito()
+    private void ManejarDeposito(InputAction.CallbackContext context)
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (context.performed)
         {
             if (destinoDeposito != null)
             {
@@ -329,52 +361,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ManejarLlamadoBurro()
+    private void ManejarLlamadoBurro(InputAction.CallbackContext context)
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (context.performed)
         {
             Debug.Log("📢 Llamando al burro...");
             LlamarAnimal();
         }
-    }
+    }    
 
-    private void ManejarRecogerDelBurro()
-    {
-        if (Input.GetKeyDown(KeyCode.R) && animal != null)
-        {
-            float distancia = Vector3.Distance(transform.position, animal.transform.position);
-            if (distancia <= 2.5f)
-            {
-                Burro burro = animal.GetComponent<Burro>();
-                if (burro != null && burro.TieneCarga())
-                {
-                    GameObject item = burro.ExtraerItem();
-                    if (item != null && objetoTransportado == null)
-                    {
-                        objetoTransportado = item;
-                        item.transform.SetParent(mano);
-                        item.transform.localPosition = Vector3.zero;
-
-                        Item datos = item.GetComponent<Item>();
-                        cargaActual += datos != null ? datos.peso : 0;
-
-                        Debug.Log("🎒 Objeto recuperado del burro");
-                    }
-                }
-            }
-        }
-    }
-
-    private void ManejarBotellaSostenida()
+    private void ManejarBotellaSostenida(InputAction.CallbackContext context)
     {
         // Si se está presionando U y hay una botella en mano, está sosteniéndola
-        if (Input.GetKey(KeyCode.U) && objetoTransportado != null)
+        if (context.performed && objetoTransportado != null)
         {
             estaSosteniendoBotella = true;
         }
 
         // Si se suelta U, dejar de sostenerla y actuar según el contexto
-        if (Input.GetKeyUp(KeyCode.U) && objetoTransportado != null && estaSosteniendoBotella)
+        if (context.canceled && objetoTransportado != null && estaSosteniendoBotella)
         {
             estaSosteniendoBotella = false;
 
@@ -394,9 +399,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void RecolectarBotella()
+    private void RecolectarBotella(InputAction.CallbackContext context)
     {
-        if (botellaCercana != null && objetoTransportado == null && Input.GetKey(KeyCode.U))
+        if (botellaCercana != null && objetoTransportado == null && context.performed)
         {
             Item datos = botellaCercana.GetComponent<Item>();
             GameObject nuevaBotella = Instantiate(botellaPrefab, mano.position, mano.rotation);
@@ -603,16 +608,29 @@ public class PlayerController : MonoBehaviour
 #endif
     }
 
-    private void Bailar()
+    private void Bailar(InputAction.CallbackContext context)
     {
-        bool presionoTeclaBailar = Input.GetKey(KeyCode.I);
-        animator.SetBool("Dance_b", presionoTeclaBailar);
+        if (context.performed)
+        {
+            animator.SetBool("Dance_b", true);
+        }
+        else if (context.canceled)
+        {
+            animator.SetBool("Dance_b", false);
+        }
     }
 
-    private void BailarB()
+    private void BailarB(InputAction.CallbackContext context)
     {
-        bool presionoTeclaBailarB = Input.GetKey(KeyCode.O);
-        animator.SetBool("Danceb_b", presionoTeclaBailarB);
+        
+        if (context.performed)
+        {
+            animator.SetBool("Danceb_b", true);
+        }
+        else if (context.canceled)
+        {
+            animator.SetBool("Danceb_b", false);
+        }
     }
 
     public void Depositar(Transform destino)
@@ -665,9 +683,9 @@ public class PlayerController : MonoBehaviour
         estaCercaDelBurro = estaCerca;
     }
 
-    public void Pausar()
+    public void Pausar(InputAction.CallbackContext context)
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (context.performed)
         {
             GameManager.Instance.PausarJuego();
         }
