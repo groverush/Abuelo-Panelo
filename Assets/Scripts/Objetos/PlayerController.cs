@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     private int cantidadEntregada = 0;
     private int botellasRotas = 0;
     private int maxSugarcanes = 5;
-    private int maxBotellasRotas = 3;
+    public int maxBotellasRotas = 3;
     private bool estaCercaDelBurro = false;
     private bool estaCorriendo = false;
     private bool estaCercaDeLaMesa = false;
@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
     [Header("Input Actions")]
     private PlayerInput playerInput;
     private InputAction moveAction;
+    private InputAction lookAction;
     private InputAction runAction;
     private InputAction cutAction;
     private InputAction callAction;
@@ -82,6 +83,7 @@ public class PlayerController : MonoBehaviour
         // Las referencias a las acciones se pueden obtener en Awake.
         // Las suscripciones deben ir en OnEnable.
         moveAction = playerInput.actions["Move"];
+        lookAction = playerInput.actions["Look"];
         runAction = playerInput.actions["Run"];
         cutAction = playerInput.actions["Cut"];
         callAction = playerInput.actions["Call"];
@@ -167,23 +169,19 @@ public class PlayerController : MonoBehaviour
 
     private void Mover()
     {
-        Vector2 input = playerInput.actions["Move"].ReadValue<Vector2>();
-        float h = input.x;
-        float v = input.y;
+        // Movimiento con el stick izquierdo
+        Vector2 inputMove = playerInput.actions["Move"].ReadValue<Vector2>();
+        Vector3 movimiento = new Vector3(0, 0, inputMove.y); // Mueve solo hacia adelante y atrás
 
-        Vector3 movimiento = new Vector3(0, 0, v).normalized;
+        // Rotación con el stick derecho
+        Vector2 inputLook = lookAction.ReadValue<Vector2>();
+        float giroHorizontal = inputLook.x; // El eje X del stick derecho para la rotación
+
+        // Aplica el movimiento y la rotación
         transform.Translate(movimiento * velocidad * Time.deltaTime);
-        transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * h);
+        transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * giroHorizontal);
 
-        if (v < 0)
-            meshTransform.localRotation = Quaternion.Euler(0, 180, 0);
-        else if (v > 0)
-            meshTransform.localRotation = Quaternion.identity;
-
-        float speed = Mathf.Clamp(Mathf.Abs(v), 0, 0.5f);
-        animator.SetFloat("Speed_f", speed);
-
-        bool isMoving = Mathf.Abs(v) > 0.1f;
+        bool isMoving = Mathf.Abs(movimiento.magnitude) > 0.1f;
         bool isRunning = playerInput.actions["Run"].IsPressed();
 
         // 🔊 Lógica de Audio
@@ -218,9 +216,14 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // Actualiza el Animator con la velocidad de movimiento
+        float speed = Mathf.Clamp(Mathf.Abs(inputMove.y), 0, 0.5f);
+        animator.SetFloat("Speed_f", speed);
+
+        // La lógica de la cabeza del personaje también debe usar la nueva acción de rotación
         if (!animator.GetBool("Cut_b"))
         {
-            float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), h, Time.deltaTime * 5f);
+            float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), giroHorizontal, Time.deltaTime * 5f);
             animator.SetFloat("Head_Horizontal_f", giroCabeza);
         }
         else
@@ -228,7 +231,6 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Head_Horizontal_f", 0f);
         }
     }
-
     private void Correr(InputAction.CallbackContext context)
     {
         bool presionoShift = context.ReadValue<float>() > 0.5f;
@@ -464,8 +466,6 @@ public class PlayerController : MonoBehaviour
         if (botellasRotas == maxBotellasRotas)
         {
             GameManager.Instance.PerderJuego();
-            AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
-            AudioManager.Instance.StopLoop(SoundType.PlayerRun);
             Debug.Log("🏆 ¡Perdiste!");
         }
 

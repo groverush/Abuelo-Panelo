@@ -175,6 +175,7 @@ GameObject:
   - component: {fileID: 1255133495040895248}
   - component: {fileID: 8512125180809969721}
   - component: {fileID: 6189122852657210167}
+  - component: {fileID: 3030639355734071661}
   m_Layer: 8
   m_Name: Burro
   m_TagString: Burro
@@ -190,9 +191,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886345093943950504}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.120068, y: 5.559999, z: -20.851648}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalRotation: {x: -0, y: 0.40249944, z: -0, w: 0.9154203}
+  m_LocalPosition: {x: 11.120068, y: 3.93, z: -36.95}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7531474423606938620}
@@ -202,7 +203,7 @@ Transform:
   - {fileID: 1130049340174464719}
   - {fileID: 1238199600429273213}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 47.469, z: 0}
 --- !u!95 &6064951989450910370
 Animator:
   serializedVersion: 7
@@ -234,17 +235,17 @@ NavMeshAgent:
   m_GameObject: {fileID: 886345093943950504}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 20
+  m_Radius: 1
   m_Speed: 6
-  m_Acceleration: 4
+  m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 2
+  m_StoppingDistance: 0.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 35.07
-  m_BaseOffset: -32.2
+  m_Height: 2
+  m_BaseOffset: -33
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!65 &7422152260585958992
@@ -254,7 +255,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886345093943950504}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7823a3f1a3469ec418fb81f2028d6520, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -266,8 +267,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 11.64113, y: 37.775337, z: 43.95216}
-  m_Center: {x: 0, y: 49.7, z: 5.0158215}
+  m_Size: {x: 11.64113, y: 32.94844, z: 37.973927}
+  m_Center: {x: 0.000003191898, y: 52.113464, z: 5.4377227}
 --- !u!54 &5370574262971918058
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -276,7 +277,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886345093943950504}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -293,7 +294,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!114 &1255133495040895248
 MonoBehaviour:
@@ -307,10 +308,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d1695d18d5a1a42b0540f7096f646f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanciaMinima: 4
-  capacidadMaxima: 50
-  pasosAudioSource: {fileID: 6189122852657210167}
-  pasosAudioClip: {fileID: 8300000, guid: 60bc8b5de72ff7e44beead9f6a2bb89d, type: 3}
+  distanciaMinima: 2.5
+  capacidadMaxima: 15
 --- !u!135 &8512125180809969721
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -318,7 +317,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886345093943950504}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7823a3f1a3469ec418fb81f2028d6520, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -330,8 +329,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 50
-  m_Center: {x: 0, y: 50, z: 0}
+  m_Radius: 31.2
+  m_Center: {x: 0.9800002, y: 50, z: 3.6436079}
 --- !u!82 &6189122852657210167
 AudioSource:
   m_ObjectHideFlags: 0
@@ -429,6 +428,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3030639355734071661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886345093943950504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9935d12d3910e8b4c9ee2a82226df43d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1017081190475745133
 GameObject:
   m_ObjectHideFlags: 0
@@ -1376,7 +1387,7 @@ Transform:
   m_GameObject: {fileID: 4925618127539488982}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 19.198828, z: -3.2}
+  m_LocalPosition: {x: -0, y: 19.198828, z: -7.4475584}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

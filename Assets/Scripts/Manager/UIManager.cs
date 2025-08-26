@@ -1,6 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
@@ -9,11 +10,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoCanaJugador;
     [SerializeField] private TextMeshProUGUI textoCanaBurro;
     [SerializeField] private TextMeshProUGUI textoMaquina;
-    [SerializeField] private TextMeshProUGUI textoInteraccion; // El panel o contenedor del texto "Presiona E para depositar"
+    [SerializeField] private TextMeshProUGUI textoInteraccion; 
     [SerializeField] private TextMeshProUGUI contadorProcesamientoTexto;
     [SerializeField] private TextMeshProUGUI porcentajeBarrilTexto;
     [SerializeField] private TextMeshProUGUI textoProgresoJarabe;
-    [SerializeField] private TextMeshProUGUI textoBotellasRotas;
+    [SerializeField] private TextMeshProUGUI textoBotellasRotas; // Este texto ya no será necesario
     [SerializeField] private GameObject panelVictoria;
     [SerializeField] private TextMeshProUGUI textoVictoria;
     [SerializeField] private GameObject panelDerrota;
@@ -22,6 +23,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoPausa;
     [SerializeField] private Button continuarButton;
     [SerializeField] private Button reiniciarButton;
+
+    // AÑADE ESTA NUEVA VARIABLE
+    [Header("UI Botellas de Vida")]
+    [SerializeField] private RawImage[] botellasRawImages;
+
 
     private void Awake()
     {
@@ -92,11 +98,17 @@ public class UIManager : MonoBehaviour
         if (textoProgresoJarabe != null)
             textoProgresoJarabe.text = $"{actual} / {total}";
     }
-    public void ActualizarBotellasRotas(int actual, int total)
+    
+    // CAMBIA LA LÓGICA DE ESTE MÉTODO
+    public void ActualizarBotellasRotas(int botellasRotasActuales, int maxBotellas)
     {
-        if (textoBotellasRotas != null)
-            textoBotellasRotas.text = $"Botellas rotas: {actual} / {total}";
+        // Itera a través de las imágenes de las botellas
+        for (int i = 0; i < botellasRawImages.Length; i++)
+        {
+            botellasRawImages[i].gameObject.SetActive(i < maxBotellas - botellasRotasActuales);
+        }
     }
+
 
     public void MostrarVictoria(string mensaje)
     {
@@ -118,7 +130,6 @@ public class UIManager : MonoBehaviour
     {
         if (isPaused)
         {
-
             if (panelPausa != null)
                 panelPausa.SetActive(true);
 
@@ -130,13 +141,4 @@ public class UIManager : MonoBehaviour
             panelPausa.SetActive(false);
         }
     }
-    // public void ReasignarReferencias()
-    // {
-    //     // Reasigna botones, textos u otros componentes de la nueva escena
-    //     // Ejemplo:
-    //     continuarButton = GameObject.Find("BotonContinuar").GetComponent<Button>();
-    //     reiniciarButton = GameObject.Find("BotonReiniciar").GetComponent<Button>();
-    //     // y vuelve a suscribir sus listeners si es necesario
-    // }
-
 }
