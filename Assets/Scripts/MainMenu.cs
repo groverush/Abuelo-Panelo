@@ -5,8 +5,25 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-   public void PlayGame() 
+    public void Start()
     {
+        // 🔊 Lógica de audio
+        // Solo reproduce la música si el AudioManager.Instance existe y la música del menú no está ya sonando
+        if (AudioManager.Instance != null && !AudioManager.Instance.IsPlaying(SoundType.MusicMenu))
+        {
+            AudioManager.Instance.PlayOneShot(SoundType.MusicMenu);
+        }
+    }
+
+    public void PlayGame()
+    {
+        // Detén la música del menú antes de cargar la nueva escena
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopLoop(SoundType.MusicMenu);
+            // Si la música del menú es un one-shot (sin loop), podrías simplemente no hacer nada aquí y dejar que termine
+            // Pero si la iniciaste como un loop, debes detenerla explícitamente.
+        }
         SceneManager.LoadSceneAsync(1);
     }
 
@@ -24,5 +41,4 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(0);
     }
-
 }

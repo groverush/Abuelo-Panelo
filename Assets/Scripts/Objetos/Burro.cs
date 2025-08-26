@@ -8,10 +8,6 @@ public class Burro : MonoBehaviour
     [SerializeField] private float distanciaMinima = 2f;
     [SerializeField] private int capacidadMaxima = 50;
 
-    [Header("Audio")]
-    [SerializeField] private AudioSource pasosAudioSource;
-    [SerializeField] private AudioClip pasosAudioClip;
-
 
     private NavMeshAgent agent;
     private Animator animator;
@@ -34,55 +30,57 @@ public class Burro : MonoBehaviour
 
     void LateUpdate()
     {
-        if (yendoAlJugador)
+        // Solo ejecuta la lógica del burro si el GameManager existe y el juego está activo
+        if (GameManager.Instance != null && GameManager.Instance.isGameActive)
         {
-            float distancia = Vector3.Distance(transform.position, destinoFijo);
+            if (yendoAlJugador)
+            {
+                float distancia = Vector3.Distance(transform.position, destinoFijo);
 
-            if (distancia > 0.2f)
-            {
-                agent.SetDestination(destinoFijo);
-            }
-            else
-            {
-                agent.ResetPath();
-                yendoAlJugador = false;
-            }
-
-            float velocidad = agent.velocity.magnitude;
-            // Reproduce sonido de pasos si se está moviendo
-            if (velocidad > 0.1f)
-            {
-                if (!pasosAudioSource.isPlaying)
+                if (distancia > 0.2f)
                 {
-                    pasosAudioSource.clip = pasosAudioClip;
-                    pasosAudioSource.loop = true;
-                    pasosAudioSource.Play();
+                    agent.SetDestination(destinoFijo);
                 }
-            }
-            else
-            {
-                if (pasosAudioSource.isPlaying)
+                else
                 {
-                    pasosAudioSource.Stop();
+                    agent.ResetPath();
+                    yendoAlJugador = false;
                 }
+
+                float velocidad = agent.velocity.magnitude;
+
+                // 🔊 Lógica para reproducir/detener los pasos
+                if (velocidad > 0.1f)
+                {
+                    if (!AudioManager.Instance.IsPlaying(SoundType.DonkeyWalk))
+                    {
+                        AudioManager.Instance.PlayLoop(SoundType.DonkeyWalk);
+                    }
+                }
+                else
+                {
+                    if (AudioManager.Instance.IsPlaying(SoundType.DonkeyWalk))
+                    {
+                        AudioManager.Instance.StopLoop(SoundType.DonkeyWalk);
+                    }
+                }
+
+                animator.SetFloat("Speed_f", velocidad, 0.1f, Time.deltaTime);
             }
 
-            animator.SetFloat("Speed_f", velocidad, 0.1f, Time.deltaTime);
-        }
-
-        // Seguridad: si el jugador se aleja más de lo esperado, ocultamos el texto
-        if (jugadorCercano != null)
-        {
-            float distanciaJugador = Vector3.Distance(transform.position, jugadorCercano.transform.position);
-            if (distanciaJugador > 3f)
+            // Seguridad: si el jugador se aleja más de lo esperado, ocultamos el texto
+            if (jugadorCercano != null)
             {
-                UIManager.Instance.MostrarTextoInteraccion(false, "No hay objeto cerca");
-                jugadorCercano.SetCercaniaBurro(false);
-                jugadorCercano = null;
+                float distanciaJugador = Vector3.Distance(transform.position, jugadorCercano.transform.position);
+                if (distanciaJugador > 3f)
+                {
+                    UIManager.Instance.MostrarTextoInteraccion(false, "No hay objeto cerca");
+                    jugadorCercano.SetCercaniaBurro(false);
+                    jugadorCercano = null;
+                }
             }
         }
     }
-
     public void SeguirJugador(Transform jugador)
     {
         Vector3 posicionJugador = jugador.position;
@@ -144,12 +142,6 @@ public class Burro : MonoBehaviour
         UIManager.Instance.ActualizarCanaBurro(inventario.Count, capacidadMaxima);
     }
 
-    public void DetenerPasos()
-    {
-
-        pasosAudioSource.Stop();
-
-    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))

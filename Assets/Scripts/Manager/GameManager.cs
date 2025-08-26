@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
 
             if (currCountdownValue == 0 && isGameActive)
             {
-                audioSource.PlayOneShot(derrotaAudioClip);
+                AudioManager.Instance.PlayOneShot(SoundType.GameOver);
                 PerderJuego(); // Llama a PerderJuego cuando el tiempo se agote
             }
         }
@@ -92,37 +92,67 @@ public class GameManager : MonoBehaviour
         isGameActive = true;
         timeLeftText.gameObject.SetActive(true);
         StartCoroutine("StartCountdown", 200);
+        AudioManager.Instance.PlayOneShot(SoundType.MusicWorld);
+        AudioManager.Instance.StopLoop(SoundType.MusicMenu);        
+    }
 
+    public void DetenerSonidosEnJuego()
+    {
+        // Detiene solo los sonidos de pasos (que son loops)
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
+            AudioManager.Instance.StopLoop(SoundType.PlayerRun);
+            AudioManager.Instance.StopLoop(SoundType.DonkeyWalk);
+        }
     }
 
     public void GanarJuego()
     {
-        isGameActive = false; // Detiene el juego
+        isGameActive = false;
         Debug.Log("🎉 Has ganado el juego.");
+        
+        DetenerSonidosEnJuego(); // ⬅️ ¡Llamar primero!
+        AudioManager.Instance.StopLoop(SoundType.MusicWorld);
+
         UIManager.Instance.MostrarVictoria("¡VICTORIA!");
-        if (burro != null && player != null)
-        {
-            player.DetenerPasos(); // nuevo método que crearás
-            burro.DetenerPasos(); // nuevo método que crearás
-        }
-        if (camAudioSource != null) camAudioSource.Stop();
-        audioSource.PlayOneShot(victoriaAudioClip);
+
+        AudioManager.Instance.PlayOneShot(SoundType.Victory);
         Time.timeScale = 0;
     }
 
+    // En GameManager.cs
+
     public void PerderJuego()
     {
+        isGameActive = false;
         Debug.Log("💀 Has perdido el juego.");
+        
+        DetenerSonidosEnJuego(); // ⬅️ ¡Llamar primero!
+        AudioManager.Instance.StopLoop(SoundType.MusicWorld);
+
         UIManager.Instance.MostrarDerrota("¡DERROTA!");
-        if (camAudioSource != null) camAudioSource.Stop();
-        audioSource.PlayOneShot(derrotaAudioClip);
-        if (burro != null && player != null)
-        {
-            player.DetenerPasos(); // nuevo método que crearás
-            burro.DetenerPasos(); // nuevo método que crearás
-        }
-        isGameActive = false; // Detiene el juego
+        AudioManager.Instance.PlayOneShot(SoundType.GameOver);
         Time.timeScale = 0;
+    }
+    public void PausarJuego()
+    {
+        isGameActive = false;
+        Debug.Log("Juego pausado.");
+        
+        DetenerSonidosEnJuego(); // ⬅️ ¡Llamar primero!
+        Time.timeScale = 0;
+        UIManager.Instance.MostrarPausa(true, "Juego pausado");
+    }
+
+    public void Continuar()
+    {
+        isGameActive = true;
+        Debug.Log("Continuando juego...");
+        Time.timeScale = 1;
+        UIManager.Instance.MostrarPausa(false, "");
+        // No se necesita AudioManager.Instance.PlayOneShot(SoundType.MusicWorld); aquí
+        // El audio se reanudará solo
     }
 
     public void ReiniciarJuego()
@@ -133,29 +163,7 @@ public class GameManager : MonoBehaviour
 
         // Si GameManager NO es persistente, esto es suficiente:
         SceneManager.LoadScene("MainScene");
-
-        // Si GameManager es persistente (DontDestroyOnLoad) y persiste entre escenas,
-        // asegúrate de reconfigurar UIManager en OnSceneLoaded como se muestra arriba.
-    }
-
-    public void PausarJuego()
-    {
-        Debug.Log("Juego pausado.");
-        if (burro != null && player != null)
-        {
-            player.DetenerPasos(); // nuevo método que crearás
-            burro.DetenerPasos(); // nuevo método que crearás
-        }
-        Time.timeScale = 0;
-        UIManager.Instance.MostrarPausa(true, "Juego pausado");
-    }
-
-    public void Continuar()
-    {
-
-        Debug.Log("Continuando juego...");
-        Time.timeScale = 1;
-        UIManager.Instance.MostrarPausa(false, "");
+        AudioManager.Instance.PlayOneShot(SoundType.MusicMenu);
     }
 
     public void IrAlMenuPrincipal()
@@ -163,5 +171,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("Volviendo al menú principal...");
         Time.timeScale = 1; // Asegúrate de reanudar el tiempo antes de cambiar de escena
         SceneManager.LoadScene("MenuPrincipal");
+        AudioManager.Instance.PlayOneShot(SoundType.MusicMenu);
+        AudioManager.Instance.StopLoop(SoundType.MusicWorld);
     }
 }

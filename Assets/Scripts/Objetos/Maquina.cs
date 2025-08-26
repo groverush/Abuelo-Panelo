@@ -5,7 +5,6 @@ public class Maquina : MonoBehaviour
     [SerializeField] private int capacidadInterna = 100;
     [SerializeField] private int cantidadProcesar = 5;
     [SerializeField] private float tiempoProceso = 3f;
-    [SerializeField] private AudioSource sonidoMotor;
     [SerializeField] private Barril barril;
 
     private int canasEnMaquina = 0;
@@ -37,7 +36,7 @@ public class Maquina : MonoBehaviour
     {
         estaProcesando = true;
 
-        if (sonidoMotor != null) sonidoMotor.Play();
+        AudioManager.Instance.PlayLoop(SoundType.Machine);
         UIManager.Instance.MostrarContadorProcesamiento(true);
 
         float tiempoRestante = tiempoProceso;
@@ -51,7 +50,7 @@ public class Maquina : MonoBehaviour
             if (barril.EstaLleno)
             {
                 UIManager.Instance.MostrarContadorProcesamiento(false);
-                if (sonidoMotor != null) sonidoMotor.Stop();
+                AudioManager.Instance.StopLoop(SoundType.Machine);
                 estaProcesando = false;
                 yield break;
             }
@@ -63,7 +62,7 @@ public class Maquina : MonoBehaviour
         UIManager.Instance.ActualizarCanaMaquina(canasEnMaquina, capacidadInterna);
 
         UIManager.Instance.MostrarContadorProcesamiento(false);
-        if (sonidoMotor != null) sonidoMotor.Stop();
+        AudioManager.Instance.StopLoop(SoundType.Machine);
         estaProcesando = false;
     }
 
