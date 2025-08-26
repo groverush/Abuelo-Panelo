@@ -520,7 +520,7 @@
                 {
                     "name": "",
                     "id": "5630eaae-f66b-4134-a5b7-323499bfde06",
-                    "path": "",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
@@ -531,7 +531,7 @@
                 {
                     "name": "",
                     "id": "33b65a5f-674a-45b8-bd46-130473b2e5cc",
-                    "path": "",
+                    "path": "<Keyboard>/enter",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
@@ -542,7 +542,7 @@
                 {
                     "name": "",
                     "id": "106dc336-9236-4288-87e3-429869774ff6",
-                    "path": "",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
@@ -557,6 +557,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bc27ff86-d8a8-4f70-9c32-eb014f2aa2ce",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false

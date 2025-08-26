@@ -2137,6 +2137,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1188029298160703658, guid: 96364bd3711b5e240a933dc648dcb99f, type: 3}
   m_PrefabInstance: {fileID: 1559475692}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1609516223 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8870578840853089958, guid: 93d4ae6ee63bd5747b7b593d8637156c, type: 3}
+  m_PrefabInstance: {fileID: 452330511219520647}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1653157209 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8819927118613827278, guid: 75f20b5c379295c459dd11a955454790, type: 3}
@@ -2790,11 +2801,11 @@ PrefabInstance:
     - target: {fileID: 6006109667511183537, guid: ea3f7a355148323449356cd19087f7d3, type: 3}
       propertyPath: continuarButton
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1008729517}
     - target: {fileID: 6006109667511183537, guid: ea3f7a355148323449356cd19087f7d3, type: 3}
       propertyPath: reiniciarButton
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1609516223}
     - target: {fileID: 6006109667511183537, guid: ea3f7a355148323449356cd19087f7d3, type: 3}
       propertyPath: textoCanaJugador
       value: 
@@ -3197,6 +3208,10 @@ PrefabInstance:
     - target: {fileID: 6817585631201733943, guid: 93d4ae6ee63bd5747b7b593d8637156c, type: 3}
       propertyPath: m_Name
       value: BotellaRota 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6891280019645196825, guid: 93d4ae6ee63bd5747b7b593d8637156c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6998827690857706905, guid: 93d4ae6ee63bd5747b7b593d8637156c, type: 3}
       propertyPath: m_IsActive
@@ -3689,7 +3704,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd3df10b4b2c46d40bb86d119c4ad9e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstSelectedButton: {fileID: 452330511219520653}
+  firstSelectedButton: {fileID: 1342591595}
 --- !u!114 &6065723434463611087 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6683088562780316897, guid: 93d4ae6ee63bd5747b7b593d8637156c, type: 3}
