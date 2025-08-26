@@ -774,7 +774,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 2927802767935804114}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 20
+  m_Radius: 1
   m_Speed: 6
   m_Acceleration: 8
   avoidancePriority: 50
@@ -783,8 +783,8 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 36
-  m_BaseOffset: -34
+  m_Height: 2
+  m_BaseOffset: -33
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!65 &1025966335294820555
@@ -833,7 +833,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!114 &9117859726115665294
 MonoBehaviour:
@@ -849,8 +849,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distanciaMinima: 2.5
   capacidadMaxima: 15
-  pasosAudioSource: {fileID: 3791395335334945888}
-  pasosAudioClip: {fileID: 8300000, guid: 60bc8b5de72ff7e44beead9f6a2bb89d, type: 3}
 --- !u!135 &5366612937648359760
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -870,7 +868,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 30
+  m_Radius: 31.2
   m_Center: {x: 0.9800002, y: 50, z: 3.6436079}
 --- !u!82 &3791395335334945888
 AudioSource:

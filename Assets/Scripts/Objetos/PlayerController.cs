@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
     private InputAction recollectAction; 
 
     public static bool EstaCortando { get; private set; }
+    public static bool EstaBailando { get; private set; }
 
     [SerializeField] private Collider macheteCollider;
 
@@ -55,22 +56,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator animator;
 
     [Header("Sonidos")]
-    [SerializeField] private AudioSource pasosAudioSource;
-    [SerializeField] private AudioSource correrAudioSource;
-    [SerializeField] private AudioClip pasosAudioClip;
-    [SerializeField] private AudioClip correrAudioClip;
-    [SerializeField] private AudioSource recolectarAudioSource;
-    [SerializeField] private AudioClip recolectarAudioClip;
-    [SerializeField] private AudioSource llamarAudioSource;
-    [SerializeField] private AudioClip llamarAudioClip;
-    [SerializeField] private AudioSource llenarAudioSource;
-    [SerializeField] private AudioClip llenarAudioClip;
-    [SerializeField] private AudioSource dejarBotellaAudioSource;
-    [SerializeField] private AudioClip dejarBotellaAudioClip;
-    [SerializeField] private AudioSource romperBotellaAudioSource;
-    [SerializeField] private AudioClip romperBotellaAudioClip;
-    [SerializeField] private AudioSource recogerBotellaAudioSource;
-    [SerializeField] private AudioClip recogerBotellaAudioClip;
+    [SerializeField] private AudioSource audioSource;
 
     [Header("Entrega de Jarabe")]
     [SerializeField] private Transform[] posicionesEntrega; // 5 posiciones vacías sobre la mesa
@@ -93,39 +79,17 @@ public class PlayerController : MonoBehaviour
     {
         playerInput = GetComponent<PlayerInput>();
 
+        // Las referencias a las acciones se pueden obtener en Awake.
+        // Las suscripciones deben ir en OnEnable.
         moveAction = playerInput.actions["Move"];
-
-        cutAction = playerInput.actions["Cut"];
-        cutAction.performed += ManejarCorte;   // cuando se presiona
-        cutAction.canceled += ManejarCorte;    // cuando se suelta
-
-        callAction = playerInput.actions["Call"];
-        callAction.performed += ManejarLlamadoBurro;
-
-        giveAction = playerInput.actions["Give"];
-        giveAction.performed += ManejarDeposito;
-
         runAction = playerInput.actions["Run"];
-        runAction.performed += Correr;          // cuando se presiona
-        runAction.canceled += Correr;   
-                // cuando se suelta
+        cutAction = playerInput.actions["Cut"];
+        callAction = playerInput.actions["Call"];
+        giveAction = playerInput.actions["Give"];
         danceAction = playerInput.actions["Dance 1"];
-        danceAction.performed += Bailar;          // cuando se presiona
-        danceAction.canceled += Bailar;   
-                // cuando se suelta
         danceBAction = playerInput.actions["Dance 2"];
-        danceBAction.performed += BailarB;      // cuando se presiona
-        danceBAction.canceled += BailarB;  // cuando se suelta
-                 
         pauseAction = playerInput.actions["Pause"];
-        pauseAction.performed += Pausar; // cuando se presiona
-
         recollectAction = playerInput.actions["HoldBottle"];
-        recollectAction.performed += ManejarBotellaSostenida; // cuando se presiona
-        recollectAction.canceled += ManejarBotellaSostenida; // cuando se suelta
-        recollectAction.performed += RecolectarBotella; // cuando se presiona
-        recollectAction.canceled += RecolectarBotella; // cuando se suelta
-
     }
 
 
@@ -139,9 +103,60 @@ public class PlayerController : MonoBehaviour
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
-    // void Update()
-    // {   
-    // }
+    private void OnEnable()
+    {
+        // Suscribir todas las acciones cuando el objeto se activa
+        runAction.performed += Correr;
+        runAction.canceled += Correr;
+
+        cutAction.performed += Cortar;
+        cutAction.canceled += Cortar;
+
+        callAction.performed += LlamarBurro;
+
+        giveAction.performed += ManejarDeposito;
+
+        danceAction.performed += Bailar;
+        danceAction.canceled += Bailar;
+
+        danceBAction.performed += BailarB;
+        danceBAction.canceled += BailarB;
+
+        pauseAction.performed += Pausar;
+
+        recollectAction.performed += ManejarBotellaSostenida;
+        recollectAction.canceled += ManejarBotellaSostenida;
+        recollectAction.performed += RecolectarBotella;
+        recollectAction.canceled += RecolectarBotella;
+    }
+
+    private void OnDisable()
+    {
+        // Desuscribir todas las acciones cuando el objeto se desactiva
+        runAction.performed -= Correr;
+        runAction.canceled -= Correr;
+
+        cutAction.performed -= Cortar;
+        cutAction.canceled -= Cortar;
+
+        callAction.performed -= LlamarBurro;
+
+        giveAction.performed -= ManejarDeposito;
+
+        danceAction.performed -= Bailar;
+        danceAction.canceled -= Bailar;
+
+        danceBAction.performed -= BailarB;
+        danceBAction.canceled -= BailarB;
+
+        pauseAction.performed -= Pausar;
+
+        recollectAction.performed -= ManejarBotellaSostenida;
+        recollectAction.canceled -= ManejarBotellaSostenida;
+        recollectAction.performed -= RecolectarBotella;
+        recollectAction.canceled -= RecolectarBotella;
+    }
+
 
     void FixedUpdate()
     {
@@ -168,42 +183,39 @@ public class PlayerController : MonoBehaviour
         float speed = Mathf.Clamp(Mathf.Abs(v), 0, 0.5f);
         animator.SetFloat("Speed_f", speed);
 
-        bool estaMoviendose = Mathf.Abs(v) > 0.1f;
+        bool isMoving = Mathf.Abs(v) > 0.1f;
+        bool isRunning = playerInput.actions["Run"].IsPressed();
 
-        if (estaMoviendose)
+        // 🔊 Lógica de Audio
+        // Asegúrate de que AudioManager.Instance exista antes de usarlo.
+        if (AudioManager.Instance != null)
         {
-            if (estaCorriendo)
+            if (isMoving)
             {
-                if (!correrAudioSource.isPlaying)
+                if (isRunning)
                 {
-                    correrAudioSource.clip = correrAudioClip;
-                    correrAudioSource.loop = true;
-                    correrAudioSource.Play();
+                    // El personaje está corriendo
+                    AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
+                    if (!AudioManager.Instance.IsPlaying(SoundType.PlayerRun))
+                    {
+                        AudioManager.Instance.PlayLoop(SoundType.PlayerRun);
+                    }
                 }
-
-                if (pasosAudioSource.isPlaying)
-                    pasosAudioSource.Stop();
+                else
+                {
+                    // El personaje está caminando
+                    AudioManager.Instance.StopLoop(SoundType.PlayerRun);
+                    if (!AudioManager.Instance.IsPlaying(SoundType.PlayerWalk))
+                    {
+                        AudioManager.Instance.PlayLoop(SoundType.PlayerWalk);
+                    }
+                }
             }
-            else
+            else // El personaje está quieto
             {
-                if (!pasosAudioSource.isPlaying)
-                {
-                    pasosAudioSource.clip = pasosAudioClip;
-                    pasosAudioSource.loop = true;
-                    pasosAudioSource.Play();
-                }
-
-                if (correrAudioSource.isPlaying)
-                    correrAudioSource.Stop();
+                AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
+                AudioManager.Instance.StopLoop(SoundType.PlayerRun);
             }
-        }
-        else
-        {
-            if (pasosAudioSource.isPlaying)
-                pasosAudioSource.Stop();
-
-            if (correrAudioSource.isPlaying)
-                correrAudioSource.Stop();
         }
 
         if (!animator.GetBool("Cut_b"))
@@ -234,14 +246,7 @@ public class PlayerController : MonoBehaviour
             velocidad = velocidadBase * 2f;
             animator.SetBool("Run_b", true);
 
-            if (correrAudioSource != null && correrAudioClip != null)
-            {
-                correrAudioSource.clip = correrAudioClip;
-                correrAudioSource.loop = true;
-                correrAudioSource.Play();
-                pasosAudioSource.Stop();
-            }
-
+            // La lógica de audio fue movida al método Mover()
         }
         else if (!puedeCorrer && estaCorriendo)
         {
@@ -249,12 +254,9 @@ public class PlayerController : MonoBehaviour
             velocidad = velocidadBase;
             animator.SetBool("Run_b", false);
 
-            if (correrAudioSource != null && correrAudioSource.isPlaying)
-                correrAudioSource.Stop();
         }
     }
-
-    public void ManejarCorte(InputAction.CallbackContext context)
+    public void Cortar(InputAction.CallbackContext context)
     {
         bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
 
@@ -297,9 +299,8 @@ public class PlayerController : MonoBehaviour
             sugarcanesRecolectados++;
             if (sugarcanesRecolectados < maxSugarcanes)
             {
-                recolectarAudioSource.PlayOneShot(recolectarAudioClip, 1f);
+                AudioManager.Instance.PlayOneShot(SoundType.CaneCollect);
             }
-            recolectarAudioSource.PlayOneShot(recolectarAudioClip);
             Debug.Log($"🌱 Sugarcanes recolectadas: {sugarcanesRecolectados} / {maxSugarcanes}");
             UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
         }
@@ -309,14 +310,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void DetenerPasos()
-    {
-        if (pasosAudioSource.isPlaying)
-            pasosAudioSource.Stop();
-
-        if (correrAudioSource.isPlaying)
-            correrAudioSource.Stop();
-    }
     private void ManejarDeposito(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -348,7 +341,7 @@ public class PlayerController : MonoBehaviour
                     }
 
 
-                    recolectarAudioSource.PlayOneShot(recolectarAudioClip, 5f);
+                    AudioManager.Instance.PlayOneShot(SoundType.CaneGive);
                     Debug.Log($"🐴 Se transfirieron {sugarcanesRecolectados} sugarcanes al burro.");
                     sugarcanesRecolectados = 0;
                     UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
@@ -361,14 +354,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ManejarLlamadoBurro(InputAction.CallbackContext context)
+    private void LlamarBurro(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            Debug.Log("📢 Llamando al burro...");
-            LlamarAnimal();
+            AudioManager.Instance.PlayOneShot(SoundType.PlayerCall);
+            LlamadoBurro();
         }
-    }    
+    }  
+    
+    public void LlamadoBurro()
+    {
+        if (animal != null)
+        {
+            Burro burro = animal.GetComponent<Burro>();
+            if (burro != null)
+            {
+                burro.SeguirJugador(this.transform);
+            }
+        }
+    }  
 
     private void ManejarBotellaSostenida(InputAction.CallbackContext context)
     {
@@ -423,7 +428,7 @@ public class PlayerController : MonoBehaviour
             cargaActual += datos.peso;
 
             Destroy(botellaCercana);
-            recogerBotellaAudioSource.PlayOneShot(recogerBotellaAudioClip, 3f);
+            AudioManager.Instance.PlayOneShot(SoundType.BottleRecollected);
             UIManager.Instance.MostrarTextoInteraccion(false, "");
             botellaCercana = null;
 
@@ -448,8 +453,7 @@ public class PlayerController : MonoBehaviour
         Collider col = objetoTransportado.GetComponent<Collider>();
         if (col != null) col.enabled = true;
 
-        if (romperBotellaAudioSource != null && romperBotellaAudioClip != null)
-            romperBotellaAudioSource.PlayOneShot(romperBotellaAudioClip, 1f);
+        AudioManager.Instance.PlayOneShot(SoundType.BottleBroken);
 
         Destroy(objetoTransportado, 2f);
         objetoTransportado = null;
@@ -460,10 +464,8 @@ public class PlayerController : MonoBehaviour
         if (botellasRotas == maxBotellasRotas)
         {
             GameManager.Instance.PerderJuego();
-            pasosAudioSource.Stop();
-            correrAudioSource.Stop();
-
-
+            AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
+            AudioManager.Instance.StopLoop(SoundType.PlayerRun);
             Debug.Log("🏆 ¡Perdiste!");
         }
 
@@ -485,8 +487,7 @@ public class PlayerController : MonoBehaviour
                 cañasAntesDeLlenado = barril.canasActuales;
 
                 UIManager.Instance.MostrarTextoInteraccion(true, "Llenando botella...");
-                if (llenarAudioSource != null && llenarAudioClip != null)
-                    llenarAudioSource.PlayOneShot(llenarAudioClip, 1f);
+                AudioManager.Instance.PlayOneShot(SoundType.BottleFilled);
 
                 llenadoCoroutine = StartCoroutine(FinalizarLlenadoBotella(barril));
             }
@@ -575,7 +576,7 @@ public class PlayerController : MonoBehaviour
                 GameObject nuevaBotella = Instantiate(botellaLlenaPrefab, punto.position, punto.rotation);
                 nuevaBotella.transform.SetParent(punto);
 
-                dejarBotellaAudioSource.PlayOneShot(dejarBotellaAudioClip, 1f);
+                AudioManager.Instance.PlayOneShot(SoundType.BottleDelivered);
                 cantidadEntregada++;
                 UIManager.Instance.ActualizarProgresoJarabe(cantidadEntregada, posicionesEntrega.Length);
 
@@ -610,26 +611,31 @@ public class PlayerController : MonoBehaviour
 
     private void Bailar(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (!EstaCortando)
         {
-            animator.SetBool("Dance_b", true);
-        }
-        else if (context.canceled)
-        {
-            animator.SetBool("Dance_b", false);
+            if (context.performed && !EstaCortando)
+            {
+                animator.SetBool("Dance_b", true);
+            }
+            else if (context.canceled)
+            {
+                animator.SetBool("Dance_b", false);
+            }            
         }
     }
 
     private void BailarB(InputAction.CallbackContext context)
     {
-        
-        if (context.performed)
+        if (!EstaCortando)
         {
-            animator.SetBool("Danceb_b", true);
-        }
-        else if (context.canceled)
-        {
-            animator.SetBool("Danceb_b", false);
+            if (context.performed && !EstaCortando)
+            {
+                animator.SetBool("Danceb_b", true);
+            }
+            else if (context.canceled)
+            {
+                animator.SetBool("Danceb_b", false);
+            }         
         }
     }
 
@@ -654,22 +660,6 @@ public class PlayerController : MonoBehaviour
             objetoTransportado.transform.position = destino.position;
             cargaActual -= datos.peso;
             objetoTransportado = null;
-        }
-    }
-
-    public void LlamarAnimal()
-    {
-        if (animal != null)
-        {
-            Burro burro = animal.GetComponent<Burro>();
-            if (burro != null)
-            {
-                if (llamarAudioSource != null && llamarAudioClip != null)
-                {
-                    llamarAudioSource.PlayOneShot(llamarAudioClip, 1f);
-                }
-                burro.SeguirJugador(this.transform);
-            }
         }
     }
 

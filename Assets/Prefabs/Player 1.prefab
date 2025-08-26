@@ -484,6 +484,7 @@ GameObject:
   - component: {fileID: 5354781989123938924}
   - component: {fileID: 7892658730609881509}
   - component: {fileID: 2988044727519355553}
+  - component: {fileID: 2872509703599855213}
   m_Layer: 6
   m_Name: Player 1
   m_TagString: Player
@@ -499,9 +500,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3277177897613268253}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 5.74, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7897612921781096995}
@@ -596,7 +597,7 @@ MonoBehaviour:
   resistencia: 100
   fuerza: 10
   velocidad: 5
-  velocidadGiro: 107.1
+  velocidadGiro: 107
   capacidadCarga: 50
   macheteCollider: {fileID: 7175201410028812604}
   mano: {fileID: 3676290255677019131}
@@ -605,22 +606,7 @@ MonoBehaviour:
   sugarcanePrefab: {fileID: 744598994687430588, guid: 49dae13330559ca4ba9c5b4992456c3f, type: 3}
   meshTransform: {fileID: 3485870763315332670}
   animator: {fileID: 8435837052494239320}
-  pasosAudioSource: {fileID: 1150110317022434872}
-  correrAudioSource: {fileID: 5300228365806075147}
-  pasosAudioClip: {fileID: 8300000, guid: 1a88934252107764797642b618d4ba33, type: 3}
-  correrAudioClip: {fileID: 8300000, guid: 0ad0669ab43c8294aa3ff78242eaad06, type: 3}
-  recolectarAudioSource: {fileID: 5981312843031669657}
-  recolectarAudioClip: {fileID: 8300000, guid: 2c039081066642f45a0131f44d832480, type: 3}
-  llamarAudioSource: {fileID: 2006552310456695652}
-  llamarAudioClip: {fileID: 8300000, guid: dfa881240cdb562488c93619cd35c500, type: 3}
-  llenarAudioSource: {fileID: 2629499029732676314}
-  llenarAudioClip: {fileID: 8300000, guid: 9a78a041470f80d438b304fb32c0793f, type: 3}
-  dejarBotellaAudioSource: {fileID: 5354781989123938924}
-  dejarBotellaAudioClip: {fileID: 8300000, guid: 9eb522aa9a8b9594d9fb8bf1ac442f3e, type: 3}
-  romperBotellaAudioSource: {fileID: 7892658730609881509}
-  romperBotellaAudioClip: {fileID: 8300000, guid: 4d68d79c5d0500f488e76014096ccfa2, type: 3}
-  recogerBotellaAudioSource: {fileID: 2988044727519355553}
-  recogerBotellaAudioClip: {fileID: 8300000, guid: cac16afcf831ebb4c9eff173aa9593b0, type: 3}
+  audioSource: {fileID: 0}
   posicionesEntrega:
   - {fileID: 0}
   - {fileID: 0}
@@ -646,7 +632,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -743,7 +729,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -840,7 +826,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -937,7 +923,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1034,7 +1020,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1131,7 +1117,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1228,7 +1214,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1325,7 +1311,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1409,6 +1395,64 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2872509703599855213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3277177897613268253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 5063a288977c7bb4f9f0017728de1f01, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b3e92705-4519-495f-b84b-3ba5eaf4f3c3
+    m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3344fc5d-1b1d-436e-91f8-722b910fcdd4
+    m_ActionName: 'Player/Cut[/Keyboard/space,/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4d678d27-0229-4b9d-8444-39e98eb7418f
+    m_ActionName: 'Player/Dance 1[/Keyboard/i]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a902db20-c095-448b-9bce-230e57ae17a4
+    m_ActionName: 'Player/Dance 2[/Keyboard/o]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 5e3b1adb-0d60-47c4-a14a-786183565ac7
+    m_ActionName: 'Player/HoldBottle[/Keyboard/u]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 752c3f32-e681-472f-afb3-92940c8ba54f
+    m_ActionName: 'Player/Call[/Keyboard/q]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c69c9524-8e55-47aa-8fa7-e1f952464e80
+    m_ActionName: 'Player/Give[/Keyboard/e]'
+  m_NeverAutoSwitchControlSchemes: 1
+  m_DefaultControlScheme: Gamepad
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &3549335772924592381
 GameObject:
   m_ObjectHideFlags: 0
@@ -2182,8 +2226,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f4a47732bdff074d889c6a665e88eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioSource: {fileID: 7310670450106700353}
-  corteAudioClip: {fileID: 8300000, guid: b53707e7e3f52b74cb725495bb7195bf, type: 3}
 --- !u!82 &7310670450106700353
 AudioSource:
   m_ObjectHideFlags: 0
