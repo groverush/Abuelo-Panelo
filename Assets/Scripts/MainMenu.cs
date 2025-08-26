@@ -24,7 +24,7 @@ public class MainMenu : MonoBehaviour
             // Si la música del menú es un one-shot (sin loop), podrías simplemente no hacer nada aquí y dejar que termine
             // Pero si la iniciaste como un loop, debes detenerla explícitamente.
         }
-        SceneManager.LoadSceneAsync(1);
+        SceneManager.LoadSceneAsync(4);
     }
 
     public void InstructionsScene()
