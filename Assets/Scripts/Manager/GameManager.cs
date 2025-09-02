@@ -7,18 +7,12 @@ using UnityEngine.InputSystem;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-
-    [Header("Sonidos")]
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip victoriaAudioClip;
-    [SerializeField] private AudioClip derrotaAudioClip;
-    [SerializeField] private AudioSource camAudioSource; // Fuente de audio para la música de fondo
     [SerializeField] private Burro burro;
     [SerializeField] private PlayerController player;
     [SerializeField] private PlayerInput playerInput;                                                   // Fuente de audio para la música de fondo
     [SerializeField] TextMeshProUGUI timeLeftText;
     float currCountdownValue;
-    public bool isGameActive;
+    public static bool isGameActive;
 
     private void Awake()
     {
@@ -77,11 +71,6 @@ public class GameManager : MonoBehaviour
     {
         // Reasignar camAudioSource si la cámara cambia entre escenas
         Camera cam = Camera.main;
-        if (cam != null)
-        {
-            camAudioSource = cam.GetComponent<AudioSource>();
-        }
-
     }
     // En el script GameManager.cs
     public void StartGame()

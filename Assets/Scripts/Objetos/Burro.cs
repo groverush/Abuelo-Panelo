@@ -31,7 +31,7 @@ public class Burro : MonoBehaviour
     void LateUpdate()
     {
         // Solo ejecuta la lógica del burro si el GameManager existe y el juego está activo
-        if (GameManager.Instance != null && GameManager.Instance.isGameActive)
+        if (GameManager.Instance != null)
         {
             if (yendoAlJugador)
             {
