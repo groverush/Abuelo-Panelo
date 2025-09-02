@@ -7,12 +7,18 @@ using UnityEngine.InputSystem;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
+    [Header("Sonidos")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip victoriaAudioClip;
+    [SerializeField] private AudioClip derrotaAudioClip;
+    [SerializeField] private AudioSource camAudioSource; // Fuente de audio para la música de fondo
     [SerializeField] private Burro burro;
-    [SerializeField] private PlayerController player;
+    [SerializeField] private PlayerController player; 
     [SerializeField] private PlayerInput playerInput;                                                   // Fuente de audio para la música de fondo
     [SerializeField] TextMeshProUGUI timeLeftText;
     float currCountdownValue;
-    public static bool isGameActive;
+    public bool isGameActive;
 
     private void Awake()
     {
@@ -36,7 +42,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        playerInput.SwitchCurrentActionMap("UI");
+        // Inicializar referencias de audio
         StartGame();
     }
     public IEnumerator StartCountdown(float countdownValue)
@@ -71,6 +77,16 @@ public class GameManager : MonoBehaviour
     {
         // Reasignar camAudioSource si la cámara cambia entre escenas
         Camera cam = Camera.main;
+        if (cam != null)
+        {
+            camAudioSource = cam.GetComponent<AudioSource>();
+        }
+
+        // Reasignar referencias en UIManager si es necesario
+        // if (UIManager.Instance != null)
+        // {
+        //     UIManager.Instance.ReasignarReferencias();
+        // }
     }
     // En el script GameManager.cs
     public void StartGame()
@@ -84,11 +100,10 @@ public class GameManager : MonoBehaviour
         {
             UIManager.Instance.ActualizarBotellasRotas(0, player.maxBotellasRotas);
         }
-
+        
         // Reproduce la música del juego en bucle
         AudioManager.Instance.PlayLoop(SoundType.MusicWorld);
         AudioManager.Instance.StopLoop(SoundType.MusicMenu);
-        playerInput.SwitchCurrentActionMap("Player");
     }
 
     public void DetenerSonidosEnJuego()
@@ -106,7 +121,7 @@ public class GameManager : MonoBehaviour
     {
         isGameActive = false;
         Debug.Log("🎉 Has ganado el juego.");
-
+        
         DetenerSonidosEnJuego(); // ⬅️ ¡Llamar primero!
         AudioManager.Instance.StopLoop(SoundType.MusicWorld);
 
@@ -114,7 +129,6 @@ public class GameManager : MonoBehaviour
 
         AudioManager.Instance.PlayOneShot(SoundType.Victory);
         Time.timeScale = 0;
-        playerInput.SwitchCurrentActionMap("UI");
     }
 
     // En GameManager.cs
@@ -123,14 +137,13 @@ public class GameManager : MonoBehaviour
     {
         isGameActive = false;
         Debug.Log("💀 Has perdido el juego.");
-
+        
         DetenerSonidosEnJuego(); // ⬅️ ¡Llamar primero!
         AudioManager.Instance.StopLoop(SoundType.MusicWorld);
 
         UIManager.Instance.MostrarDerrota("¡DERROTA!");
         AudioManager.Instance.PlayOneShot(SoundType.GameOver);
         Time.timeScale = 0;
-        playerInput.SwitchCurrentActionMap("UI");
     }
     public void PausarJuego()
     {
@@ -154,7 +167,7 @@ public class GameManager : MonoBehaviour
 
     public void ReiniciarJuego()
     {
-        Debug.Log("Reiniciando juego...");
+        Debug.Log("Reiniciando juego...");        
         AudioManager.Instance.StopLoop(SoundType.MusicMenu);
         Time.timeScale = 1; // Reanuda el tiempo antes de recargar la escena
 

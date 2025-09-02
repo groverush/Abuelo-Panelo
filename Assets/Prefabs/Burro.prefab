@@ -175,6 +175,7 @@ GameObject:
   - component: {fileID: 1255133495040895248}
   - component: {fileID: 8512125180809969721}
   - component: {fileID: 6189122852657210167}
+  - component: {fileID: 3030639355734071661}
   m_Layer: 8
   m_Name: Burro
   m_TagString: Burro
@@ -427,6 +428,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3030639355734071661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886345093943950504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9935d12d3910e8b4c9ee2a82226df43d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1017081190475745133
 GameObject:
   m_ObjectHideFlags: 0

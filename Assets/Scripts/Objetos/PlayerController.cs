@@ -39,7 +39,6 @@ public class PlayerController : MonoBehaviour
     private InputAction danceAction; 
     private InputAction danceBAction; 
     private InputAction pauseAction;
-    private InputAction cancelAction;
     private InputAction recollectAction; 
 
     public static bool EstaCortando { get; private set; }
@@ -92,7 +91,6 @@ public class PlayerController : MonoBehaviour
         danceAction = playerInput.actions["Dance 1"];
         danceBAction = playerInput.actions["Dance 2"];
         pauseAction = playerInput.actions["Pause"];
-        cancelAction = playerInput.actions["Cancel"];
         recollectAction = playerInput.actions["HoldBottle"];
     }
 
@@ -127,7 +125,6 @@ public class PlayerController : MonoBehaviour
         danceBAction.canceled += BailarB;
 
         pauseAction.performed += Pausar;
-        cancelAction.performed += context => GameManager.Instance.Continuar();
 
         recollectAction.performed += ManejarBotellaSostenida;
         recollectAction.canceled += ManejarBotellaSostenida;
@@ -155,7 +152,6 @@ public class PlayerController : MonoBehaviour
         danceBAction.canceled -= BailarB;
 
         pauseAction.performed -= Pausar;
-        cancelAction.performed -= context => GameManager.Instance.Continuar();
 
         recollectAction.performed -= ManejarBotellaSostenida;
         recollectAction.canceled -= ManejarBotellaSostenida;
@@ -678,21 +674,12 @@ public class PlayerController : MonoBehaviour
     }
 
     public void Pausar(InputAction.CallbackContext context)
-{
-    if (context.performed)
     {
-        // Si el juego está activo, lo pausamos.
-        if (GameManager.isGameActive)
+        if (context.performed)
         {
             GameManager.Instance.PausarJuego();
         }
-        // Si el juego NO está activo (está pausado), lo reanudamos.
-        else
-        {
-            GameManager.Instance.Continuar();
-        }
     }
-}
 
     private void OnTriggerEnter(Collider other)
     {

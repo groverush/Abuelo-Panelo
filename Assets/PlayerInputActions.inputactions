@@ -404,17 +404,6 @@
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "0d1d4400-7df8-46e4-9a98-fbf51efde8f3",
-                    "path": "<Touchscreen>/delta",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Look",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         },
@@ -531,7 +520,7 @@
                 {
                     "name": "",
                     "id": "5630eaae-f66b-4134-a5b7-323499bfde06",
-                    "path": "<Mouse>/leftButton",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
@@ -542,7 +531,7 @@
                 {
                     "name": "",
                     "id": "33b65a5f-674a-45b8-bd46-130473b2e5cc",
-                    "path": "<Keyboard>/enter",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
@@ -553,7 +542,7 @@
                 {
                     "name": "",
                     "id": "106dc336-9236-4288-87e3-429869774ff6",
-                    "path": "<Keyboard>/space",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
@@ -568,28 +557,6 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Cancel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "bc27ff86-d8a8-4f70-9c32-eb014f2aa2ce",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "Cancel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "0553edf4-3a58-4768-ba76-d59e01a22b5e",
-                    "path": "<Gamepad>/start",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
