@@ -10,7 +10,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoCanaJugador;
     [SerializeField] private TextMeshProUGUI textoCanaBurro;
     [SerializeField] private TextMeshProUGUI textoMaquina;
-    [SerializeField] private TextMeshProUGUI textoInteraccion; 
+    [SerializeField] private TextMeshProUGUI textoEntregar; 
+    [SerializeField] private TextMeshProUGUI textoEntregarJarabe; 
+    [SerializeField] private TextMeshProUGUI textoRecoger;
+    [SerializeField] private TextMeshProUGUI textoLlenado;
     [SerializeField] private TextMeshProUGUI contadorProcesamientoTexto;
     [SerializeField] private TextMeshProUGUI porcentajeBarrilTexto;
     [SerializeField] private TextMeshProUGUI textoProgresoJarabe;
@@ -53,11 +56,32 @@ public class UIManager : MonoBehaviour
             textoCanaBurro.text = $" {actual} / {maximo}";
     }
 
-    public void MostrarTextoInteraccion(bool mostrar, string texto)
+    public void MostrarTextoEntregar(bool mostrar, string texto)
     {
-        if (textoInteraccion != null)
-            textoInteraccion.gameObject.SetActive(mostrar);
-        textoInteraccion.text = texto;
+        if (textoEntregar != null)
+            textoEntregar.gameObject.SetActive(mostrar);
+        textoEntregar.text = texto;
+    }
+
+    public void MostrarTextoRecoger(bool mostrar, string texto)
+    {
+        if (textoRecoger != null)
+            textoRecoger.gameObject.SetActive(mostrar);
+        textoRecoger.text = texto;
+    }
+    
+    public void MostrarTextoEntregarJarabe(bool mostrar, string texto)
+    {
+        if (textoEntregarJarabe != null)
+            textoEntregarJarabe.gameObject.SetActive(mostrar);
+        textoEntregarJarabe.text = texto;
+    }
+    
+    public void MostrarTextoLlenado(bool mostrar, string texto)
+    {
+        if (textoLlenado != null)
+            textoLlenado.gameObject.SetActive(mostrar);
+        textoLlenado.text = texto;
     }
     public void ActualizarCanaMaquina(int actual, int maximo)
     {

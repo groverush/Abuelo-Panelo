@@ -121,6 +121,17 @@
                 },
                 {
                     "name": "",
+                    "id": "3871f8f3-4cae-48e4-8f55-f056296ce7b1",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cut",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "46fda4df-3791-4759-bf38-c22a33e4fd72",
                     "path": "<Keyboard>/i",
                     "interactions": "",
@@ -186,6 +197,17 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "d0df23c4-61a2-4014-84b4-5357e4c109ff",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HoldBottle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "2D Vector",
                     "id": "9cefd8c4-716a-473c-b973-b9cc0adbebab",
                     "path": "2DVector",
@@ -245,7 +267,7 @@
                     "id": "f21a65bf-86c3-43ce-a6fb-6826bde5fdfe",
                     "path": "<Gamepad>/leftStick",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "StickDeadzone",
                     "groups": "Gamepad",
                     "action": "Move",
                     "isComposite": false,
@@ -404,6 +426,17 @@
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "b34a0896-7b45-4369-9c77-cbf9ec03f19b",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
