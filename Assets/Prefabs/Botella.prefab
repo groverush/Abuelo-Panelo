@@ -201,6 +201,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TextoRecoger
       objectReference: {fileID: 0}
+    - target: {fileID: 1049774143822430579, guid: 685a722147fbc084ca1c8b59bd74971a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3991487985376928849, guid: 685a722147fbc084ca1c8b59bd74971a, type: 3}
       propertyPath: m_Name
       value: Canvas

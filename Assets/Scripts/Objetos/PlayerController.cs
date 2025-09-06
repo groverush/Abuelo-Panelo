@@ -27,6 +27,9 @@ public class PlayerController : MonoBehaviour
     private Transform destinoDeposito;
     private GameObject botellaCercana = null;
     private GameObject barrilCercano;
+    public GameObject runButton; // Arrastra el botón "RUN" desde el Canvas aquí
+    private RectTransform runButtonRect;
+    private bool isRunningByGesture = false;
 
     [Header("Input Actions")]
     private PlayerInput playerInput;
@@ -102,6 +105,7 @@ public class PlayerController : MonoBehaviour
 
 
         velocidadBase = velocidad; // Guardamos la velocidad original
+        runButtonRect = runButton.GetComponent<RectTransform>();
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
@@ -163,9 +167,10 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         Mover();
+        Mirar();
         ManejarLlenado();
+        ManejarCorrerConJoystick();
     }
-
 
     private void Mover()
     {
@@ -173,26 +178,19 @@ public class PlayerController : MonoBehaviour
         Vector2 inputMove = playerInput.actions["Move"].ReadValue<Vector2>();
         Vector3 movimiento = new Vector3(0, 0, inputMove.y); // Mueve solo hacia adelante y atrás
 
-        // Rotación con el stick derecho
-        Vector2 inputLook = lookAction.ReadValue<Vector2>();
-        float giroHorizontal = inputLook.x; // El eje X del stick derecho para la rotación
-
-        // Aplica el movimiento y la rotación
+        // Aplica el movimiento
         transform.Translate(movimiento * velocidad * Time.deltaTime);
-        transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * giroHorizontal);
 
+        // Lógica de audio y animación para el movimiento
         bool isMoving = Mathf.Abs(movimiento.magnitude) > 0.1f;
         bool isRunning = playerInput.actions["Run"].IsPressed();
 
-        // 🔊 Lógica de Audio
-        // Asegúrate de que AudioManager.Instance exista antes de usarlo.
         if (AudioManager.Instance != null)
         {
             if (isMoving)
             {
                 if (isRunning)
                 {
-                    // El personaje está corriendo
                     AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
                     if (!AudioManager.Instance.IsPlaying(SoundType.PlayerRun))
                     {
@@ -201,7 +199,6 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    // El personaje está caminando
                     AudioManager.Instance.StopLoop(SoundType.PlayerRun);
                     if (!AudioManager.Instance.IsPlaying(SoundType.PlayerWalk))
                     {
@@ -209,7 +206,7 @@ public class PlayerController : MonoBehaviour
                     }
                 }
             }
-            else // El personaje está quieto
+            else
             {
                 AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
                 AudioManager.Instance.StopLoop(SoundType.PlayerRun);
@@ -219,8 +216,18 @@ public class PlayerController : MonoBehaviour
         // Actualiza el Animator con la velocidad de movimiento
         float speed = Mathf.Clamp(Mathf.Abs(inputMove.y), 0, 0.5f);
         animator.SetFloat("Speed_f", speed);
+    }
 
-        // La lógica de la cabeza del personaje también debe usar la nueva acción de rotación
+    private void Mirar()
+    {
+        // Rotación con el stick derecho o touch screen
+        Vector2 inputLook = lookAction.ReadValue<Vector2>();
+        float giroHorizontal = inputLook.x; // El eje X del input para la rotación
+
+        // Aplica la rotación al personaje
+        transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * giroHorizontal);
+
+        // Lógica de la cabeza del personaje
         if (!animator.GetBool("Cut_b"))
         {
             float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), giroHorizontal, Time.deltaTime * 5f);
@@ -258,6 +265,47 @@ public class PlayerController : MonoBehaviour
 
         }
     }
+    private void ManejarCorrerConJoystick()
+    {
+        // Obtén la posición del dedo en la pantalla
+        Vector2 fingerPosition = Vector2.zero;
+        bool isTouching = false;
+
+        // Si estás en un dispositivo móvil...
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            fingerPosition = touch.position;
+            isTouching = true;
+        }
+
+        // Comprobar si el dedo está sobre el botón "RUN"
+        bool isOverRunButton = RectTransformUtility.RectangleContainsScreenPoint(runButtonRect, fingerPosition);
+
+        // Si el jugador está moviendo el joystick y su dedo está sobre el botón...
+        if (isTouching && isOverRunButton)
+        {
+            if (!isRunningByGesture)
+            {
+                // Activa el estado de correr
+                isRunningByGesture = true;
+                velocidad = velocidadBase * 2f;
+                animator.SetBool("Run_b", true);
+                Debug.Log("🏃 Empiezas a correr.");
+            }
+        }
+        else
+        {
+            // Si ya no está sobre el botón, deja de correr
+            if (isRunningByGesture)
+            {
+                isRunningByGesture = false;
+                velocidad = velocidadBase;
+                animator.SetBool("Run_b", false);
+                Debug.Log("🚶 Dejas de correr.");
+            }
+        }
+    }
     public void Cortar(InputAction.CallbackContext context)
     {
         bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
@@ -269,7 +317,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Cut_b", true);
             EstaCortando = true;
             macheteCollider.enabled = true;
-            
+
             InvokeRepeating(nameof(RealizarCorte), 0f, 1.5f);
         }
         else if (context.canceled)
