@@ -4517,7 +4517,7 @@ PrefabInstance:
       objectReference: {fileID: 1188815629}
     - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: factorEscala
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: factorSensibilidad
@@ -4609,7 +4609,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1692588272635570295, guid: e45d711af3cb1504b8be9d3014826ab9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 434
+      value: 475
+      objectReference: {fileID: 0}
+    - target: {fileID: 2000678276726865089, guid: e45d711af3cb1504b8be9d3014826ab9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 272
       objectReference: {fileID: 0}
     - target: {fileID: 3019478700420240995, guid: e45d711af3cb1504b8be9d3014826ab9, type: 3}
       propertyPath: m_MovementRange

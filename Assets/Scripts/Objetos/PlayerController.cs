@@ -315,23 +315,31 @@ public class PlayerController : MonoBehaviour
     }
     private void ManejarCorrerConJoystick()
     {
-        // Obtén la posición del dedo en la pantalla
-        Vector2 fingerPosition = Vector2.zero;
-        bool isTouching = false;
+        // Por defecto, asumimos que no se está presionando el botón de correr
+        bool runButtonIsPressed = false;
 
-        // Si estás en un dispositivo móvil...
+        // 1. ITERAR POR TODOS LOS TOQUES
+        // Verifica si *cualquier* dedo está sobre el botón de Correr
         if (Input.touchCount > 0)
         {
-            Touch touch = Input.GetTouch(0);
-            fingerPosition = touch.position;
-            isTouching = true;
+            foreach (Touch touch in Input.touches)
+            {
+                // Comprobar si el dedo está sobre el botón "RUN"
+                if (RectTransformUtility.RectangleContainsScreenPoint(runButtonRect, touch.position))
+                {
+                    // Si encontramos un dedo sobre el botón de Correr, marcamos como presionado
+                    runButtonIsPressed = true;
+                    break; // Salimos del bucle tan pronto como encontramos un dedo
+                }
+            }
         }
-
-        // Comprobar si el dedo está sobre el botón "RUN"
-        bool isOverRunButton = RectTransformUtility.RectangleContainsScreenPoint(runButtonRect, fingerPosition);
-
-        // Si el jugador está moviendo el joystick y su dedo está sobre el botón...
-        if (isTouching && isOverRunButton)
+        
+        // 2. APLICAR LÓGICA DE CORRER
+        // Condición: Se debe presionar el botón de correr *y* el jugador debe estar intentando moverse
+        bool shouldRun = runButtonIsPressed && inputMoveValue.magnitude > 0.1f;
+        
+        // Controlar el estado de correr
+        if (shouldRun)
         {
             if (!isRunningByGesture)
             {
@@ -339,18 +347,18 @@ public class PlayerController : MonoBehaviour
                 isRunningByGesture = true;
                 velocidad = velocidadBase * 2f;
                 animator.SetBool("Run_b", true);
-                Debug.Log("🏃 Empiezas a correr.");
+                Debug.Log("🏃 Empiezas a correr (Táctil).");
             }
         }
         else
         {
-            // Si ya no está sobre el botón, deja de correr
+            // Si ya no se cumple la condición (soltó el botón o el joystick)
             if (isRunningByGesture)
             {
                 isRunningByGesture = false;
                 velocidad = velocidadBase;
                 animator.SetBool("Run_b", false);
-                Debug.Log("🚶 Dejas de correr.");
+                Debug.Log("🚶 Dejas de correr (Táctil).");
             }
         }
     }

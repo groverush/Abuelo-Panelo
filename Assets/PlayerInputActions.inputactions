@@ -187,11 +187,11 @@
                 },
                 {
                     "name": "",
-                    "id": "d0df23c4-61a2-4014-84b4-5357e4c109ff",
-                    "path": "<Mouse>/rightButton",
+                    "id": "c02d2913-07a6-4567-aae9-6cced3bb9bc1",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "",
                     "action": "HoldBottle",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -426,6 +426,17 @@
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "f775595b-d043-4e93-b96e-4b1989dc9089",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
