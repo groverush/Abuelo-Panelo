@@ -121,17 +121,6 @@
                 },
                 {
                     "name": "",
-                    "id": "3871f8f3-4cae-48e4-8f55-f056296ce7b1",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "Cut",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "46fda4df-3791-4759-bf38-c22a33e4fd72",
                     "path": "<Keyboard>/i",
                     "interactions": "",
@@ -269,6 +258,17 @@
                     "interactions": "",
                     "processors": "StickDeadzone",
                     "groups": "Gamepad",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e604f44f-2aa4-4324-9784-f3d7a6bc705c",
+                    "path": "<Touchscreen>/primaryTouch/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -426,17 +426,6 @@
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "b34a0896-7b45-4369-9c77-cbf9ec03f19b",
-                    "path": "<Mouse>/delta",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Look",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         },

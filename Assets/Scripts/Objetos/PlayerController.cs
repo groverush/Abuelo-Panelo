@@ -12,7 +12,9 @@ public class PlayerController : MonoBehaviour
     public float velocidad = 5f;
     public float velocidadGiro = 5f;
     public float capacidadCarga = 50f;
+    public float factorEscala = 2.0f; 
     private float velocidadBase;
+    private float giroAcumuladoY = 0f;
     private float cargaActual = 0f;
     private int sugarcanesRecolectados = 0;
     private int cantidadEntregada = 0;
@@ -35,6 +37,9 @@ public class PlayerController : MonoBehaviour
     private PlayerInput playerInput;
     private InputAction moveAction;
     private InputAction lookAction;
+
+    private Vector2 inputMoveValue;
+    private Vector2 inputLookValue;
     private InputAction runAction;
     private InputAction cutAction;
     private InputAction callAction;
@@ -163,19 +168,35 @@ public class PlayerController : MonoBehaviour
         recollectAction.canceled -= RecolectarBotella;
     }
 
+    void Update()
+    {
+        // Maneja la rotación del jugador con el dedo arrastrando la pantalla
+        ManejarRotacionTactil();
+    }
 
     void FixedUpdate()
     {
-        Mover();
-        Mirar();
+        Mover(inputMoveValue);
+        Mirar(inputLookValue);
         ManejarLlenado();
         ManejarCorrerConJoystick();
+
+        transform.rotation = Quaternion.Euler(0f, giroAcumuladoY, 0f);
+    }
+     // Los métodos de callback del Input System
+    public void OnMove(InputValue value)
+    {
+        inputMoveValue = value.Get<Vector2>();
     }
 
-    private void Mover()
+    public void OnLook(InputValue value)
+    {
+        inputLookValue = value.Get<Vector2>();
+    }
+
+    public void Mover(Vector2 inputMove)
     {
         // Movimiento con el stick izquierdo
-        Vector2 inputMove = playerInput.actions["Move"].ReadValue<Vector2>();
         Vector3 movimiento = new Vector3(0, 0, inputMove.y); // Mueve solo hacia adelante y atrás
 
         // Aplica el movimiento
@@ -218,24 +239,51 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Speed_f", speed);
     }
 
-    private void Mirar()
+    public void Mirar(Vector2 inputLook)
     {
-        // Rotación con el stick derecho o touch screen
-        Vector2 inputLook = lookAction.ReadValue<Vector2>();
-        float giroHorizontal = inputLook.x; // El eje X del input para la rotación
-
-        // Aplica la rotación al personaje
-        transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * giroHorizontal);
-
-        // Lógica de la cabeza del personaje
-        if (!animator.GetBool("Cut_b"))
+        // Si inputLook es un valor significativo (mayor que un pequeño umbral), 
+        // significa que un Gamepad o Mouse está activo, y por lo tanto aplicamos su rotación.
+        if (inputLook.magnitude > 0.1f)
         {
-            float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), giroHorizontal, Time.deltaTime * 5f);
-            animator.SetFloat("Head_Horizontal_f", giroCabeza);
+            // Rotación con el stick derecho o mouse.
+            float giroHorizontal = inputLook.x;
+
+            // Aplica la rotación al personaje
+            giroAcumuladoY += Time.deltaTime * velocidadGiro * giroHorizontal;
+
+            // Lógica de la cabeza del personaje
+            if (!animator.GetBool("Cut_b"))
+            {
+                float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), giroHorizontal, Time.deltaTime * 5f);
+                animator.SetFloat("Head_Horizontal_f", giroCabeza);
+            }
+            else
+            {
+                animator.SetFloat("Head_Horizontal_f", 0f);
+            }
         }
-        else
+        // Si la magnitud es pequeña, no hace nada (lo que permite que la rotación táctil domine).
+    }
+    void ManejarRotacionTactil()
+    {
+        if (Input.touchCount > 0)
         {
-            animator.SetFloat("Head_Horizontal_f", 0f);
+            foreach (Touch touch in Input.touches)
+            {
+                if (touch.position.x > Screen.width * 0.4f) // Usamos el umbral ajustado
+                {
+                    if (touch.phase == UnityEngine.TouchPhase.Moved)
+                    {
+                        float giroTactil = touch.deltaPosition.x * -1f; 
+                        // float factorEscala = 2.0f; // Ajusta esta sensibilidad
+
+                        // ⬅️ CLAVE: Acumular el giro táctil
+                        giroAcumuladoY += giroTactil * factorEscala;
+                        
+                        // Asegúrate de que no haya transform.Rotate() aquí.
+                    }
+                }
+            }
         }
     }
     private void Correr(InputAction.CallbackContext context)
@@ -357,6 +405,45 @@ public class PlayerController : MonoBehaviour
         else
         {
             Debug.Log("🚫 Límite de sugarcanes alcanzado.");
+        }
+    }
+    public void OnHoldButtonPressed()
+    {
+        Debug.Log("Hold button pressed!");
+        // Add your logic to start the 'hold' animation or action here.
+        if (animator != null)
+        {
+            animator.SetBool("Holding", true);
+        }
+    }
+
+    public void OnHoldButtonReleased()
+    {
+        Debug.Log("Hold button released!");
+        // Add your logic to end the 'hold' animation or action here.
+        if (animator != null)
+        {
+            animator.SetBool("Holding", false);
+        }
+    }
+
+    public void OnCutButtonPressed()
+    {
+        Debug.Log("Cut button pressed!");
+        // Add your logic to start the 'cut' animation or action here.
+        if (animator != null)
+        {
+            animator.SetBool("Cutting", true);
+        }
+    }
+
+    public void OnCutButtonReleased()
+    {
+        Debug.Log("Cut button released!");
+        // Add your logic to end the 'cut' animation or action here.
+        if (animator != null)
+        {
+            animator.SetBool("Cutting", false);
         }
     }
 
