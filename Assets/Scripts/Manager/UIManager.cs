@@ -10,8 +10,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoCanaJugador;
     [SerializeField] private TextMeshProUGUI textoCanaBurro;
     [SerializeField] private TextMeshProUGUI textoMaquina;
-    [SerializeField] private TextMeshProUGUI textoEntregar; 
-    [SerializeField] private TextMeshProUGUI textoEntregarJarabe; 
+    [SerializeField] private TextMeshProUGUI textoEntregar;
+    [SerializeField] private TextMeshProUGUI textoEntregarJarabe;
     [SerializeField] private TextMeshProUGUI textoRecoger;
     [SerializeField] private TextMeshProUGUI textoLlenado;
     [SerializeField] private TextMeshProUGUI contadorProcesamientoTexto;
@@ -31,6 +31,18 @@ public class UIManager : MonoBehaviour
     [Header("UI Botellas de Vida")]
     [SerializeField] private RawImage[] botellasRawImages;
 
+    [Header("UI Móvil")]
+    [SerializeField] private GameObject mobileUI;
+
+    private void Start()
+    {
+        if (InputDeviceDetector.Instance != null)
+        {
+            InputDeviceDetector.Instance.OnInputTypeChanged += OnInputChanged;
+            // Inicializa según el tipo actual
+            OnInputChanged(InputDeviceDetector.Instance.CurrentInputType);
+        }
+    }
 
     private void Awake()
     {
@@ -41,8 +53,19 @@ public class UIManager : MonoBehaviour
         }
 
         Instance = this;
+    }    
+    
+    private void OnDestroy()
+    {
+        if (InputDeviceDetector.Instance != null)
+            InputDeviceDetector.Instance.OnInputTypeChanged -= OnInputChanged;
     }
 
+    private void OnInputChanged(InputDeviceDetector.InputType inputType)
+    {
+        bool isTouch = inputType == InputDeviceDetector.InputType.Touch;
+        mobileUI.SetActive(isTouch);
+    }
 
     public void ActualizarCanaJugador(int actual, int maximo)
     {
@@ -69,14 +92,14 @@ public class UIManager : MonoBehaviour
             textoRecoger.gameObject.SetActive(mostrar);
         textoRecoger.text = texto;
     }
-    
+
     public void MostrarTextoEntregarJarabe(bool mostrar, string texto)
     {
         if (textoEntregarJarabe != null)
             textoEntregarJarabe.gameObject.SetActive(mostrar);
         textoEntregarJarabe.text = texto;
     }
-    
+
     public void MostrarTextoLlenado(bool mostrar, string texto)
     {
         if (textoLlenado != null)
@@ -122,7 +145,7 @@ public class UIManager : MonoBehaviour
         if (textoProgresoJarabe != null)
             textoProgresoJarabe.text = $"{actual} / {total}";
     }
-    
+
     // CAMBIA LA LÓGICA DE ESTE MÉTODO
     public void ActualizarBotellasRotas(int botellasRotasActuales, int maxBotellas)
     {
@@ -165,4 +188,6 @@ public class UIManager : MonoBehaviour
             panelPausa.SetActive(false);
         }
     }
+    
+
 }

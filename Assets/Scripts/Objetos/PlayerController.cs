@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     public float velocidadGiro = 5f;
     public float capacidadCarga = 50f;
     public float factorEscala = 2.0f; 
-    private float velocidadBase;
+    private float velocidadBase = 5f;
     private float giroAcumuladoY = 0f;
     private float cargaActual = 0f;
     private int sugarcanesRecolectados = 0;
@@ -31,12 +31,9 @@ public class PlayerController : MonoBehaviour
     private GameObject barrilCercano;
     public GameObject runButton; // Arrastra el botón "RUN" desde el Canvas aquí
     private RectTransform runButtonRect;
-    private bool isRunningByGesture = false;
 
     [Header("Input Actions")]
     private PlayerInput playerInput;
-    private InputAction moveAction;
-    private InputAction lookAction;
 
     private Vector2 inputMoveValue;
     private Vector2 inputLookValue;
@@ -51,8 +48,13 @@ public class PlayerController : MonoBehaviour
 
     public static bool EstaCortando { get; private set; }
     public static bool EstaBailando { get; private set; }
+    
+    [SerializeField] private float velocidadActual;
 
-    [SerializeField] private Collider macheteCollider;
+    [Header("Machete")]
+    [SerializeField] private Collider macheteCollider;    
+    [Header("Rotación Táctil")]
+    [SerializeField] float factorEscalaTactil = 2f;
 
     [Header("Referencias")]
     public Transform mano;
@@ -90,8 +92,6 @@ public class PlayerController : MonoBehaviour
 
         // Las referencias a las acciones se pueden obtener en Awake.
         // Las suscripciones deben ir en OnEnable.
-        moveAction = playerInput.actions["Move"];
-        lookAction = playerInput.actions["Look"];
         runAction = playerInput.actions["Run"];
         cutAction = playerInput.actions["Cut"];
         callAction = playerInput.actions["Call"];
@@ -109,16 +109,13 @@ public class PlayerController : MonoBehaviour
             animator = GetComponent<Animator>();
 
 
-        velocidadBase = velocidad; // Guardamos la velocidad original
+        velocidadActual = velocidadBase;
         runButtonRect = runButton.GetComponent<RectTransform>();
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
     private void OnEnable()
     {
-        // Suscribir todas las acciones cuando el objeto se activa
-        runAction.performed += Correr;
-        runAction.canceled += Correr;
 
         cutAction.performed += Cortar;
         cutAction.canceled += Cortar;
@@ -143,9 +140,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnDisable()
     {
-        // Desuscribir todas las acciones cuando el objeto se desactiva
-        runAction.performed -= Correr;
-        runAction.canceled -= Correr;
 
         cutAction.performed -= Cortar;
         cutAction.canceled -= Cortar;
@@ -168,18 +162,11 @@ public class PlayerController : MonoBehaviour
         recollectAction.canceled -= RecolectarBotella;
     }
 
-    void Update()
-    {
-        // Maneja la rotación del jugador con el dedo arrastrando la pantalla
-        ManejarRotacionTactil();
-    }
-
     void FixedUpdate()
     {
         Mover(inputMoveValue);
         Mirar(inputLookValue);
         ManejarLlenado();
-        ManejarCorrerConJoystick();
 
         transform.rotation = Quaternion.Euler(0f, giroAcumuladoY, 0f);
     }
@@ -196,172 +183,138 @@ public class PlayerController : MonoBehaviour
 
     public void Mover(Vector2 inputMove)
     {
-        // Movimiento con el stick izquierdo
-        Vector3 movimiento = new Vector3(0, 0, inputMove.y); // Mueve solo hacia adelante y atrás
+        inputMoveValue = inputMove;
 
-        // Aplica el movimiento
-        transform.Translate(movimiento * velocidad * Time.deltaTime);
+        // --- Detectar correr ---
+        bool correrTeclado = playerInput.actions["Run"].IsPressed();
+        bool correrJoystick = VerificarBotonCorrerTactil();
+        bool puedeCorrer = (correrTeclado || correrJoystick) && inputMove.magnitude > 0.1f;
 
-        // Lógica de audio y animación para el movimiento
-        bool isMoving = Mathf.Abs(movimiento.magnitude) > 0.1f;
-        bool isRunning = playerInput.actions["Run"].IsPressed();
-
-        if (AudioManager.Instance != null)
-        {
-            if (isMoving)
-            {
-                if (isRunning)
-                {
-                    AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
-                    if (!AudioManager.Instance.IsPlaying(SoundType.PlayerRun))
-                    {
-                        AudioManager.Instance.PlayLoop(SoundType.PlayerRun);
-                    }
-                }
-                else
-                {
-                    AudioManager.Instance.StopLoop(SoundType.PlayerRun);
-                    if (!AudioManager.Instance.IsPlaying(SoundType.PlayerWalk))
-                    {
-                        AudioManager.Instance.PlayLoop(SoundType.PlayerWalk);
-                    }
-                }
-            }
-            else
-            {
-                AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
-                AudioManager.Instance.StopLoop(SoundType.PlayerRun);
-            }
-        }
-
-        // Actualiza el Animator con la velocidad de movimiento
-        float speed = Mathf.Clamp(Mathf.Abs(inputMove.y), 0, 0.5f);
-        animator.SetFloat("Speed_f", speed);
-    }
-
-    public void Mirar(Vector2 inputLook)
-    {
-        // Si inputLook es un valor significativo (mayor que un pequeño umbral), 
-        // significa que un Gamepad o Mouse está activo, y por lo tanto aplicamos su rotación.
-        if (inputLook.magnitude > 0.1f)
-        {
-            // Rotación con el stick derecho o mouse.
-            float giroHorizontal = inputLook.x;
-
-            // Aplica la rotación al personaje
-            giroAcumuladoY += Time.deltaTime * velocidadGiro * giroHorizontal;
-
-            // Lógica de la cabeza del personaje
-            if (!animator.GetBool("Cut_b"))
-            {
-                float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), giroHorizontal, Time.deltaTime * 5f);
-                animator.SetFloat("Head_Horizontal_f", giroCabeza);
-            }
-            else
-            {
-                animator.SetFloat("Head_Horizontal_f", 0f);
-            }
-        }
-        // Si la magnitud es pequeña, no hace nada (lo que permite que la rotación táctil domine).
-    }
-    void ManejarRotacionTactil()
-    {
-        if (Input.touchCount > 0)
-        {
-            foreach (Touch touch in Input.touches)
-            {
-                if (touch.position.x > Screen.width * 0.4f) // Usamos el umbral ajustado
-                {
-                    if (touch.phase == UnityEngine.TouchPhase.Moved)
-                    {
-                        float giroTactil = touch.deltaPosition.x * -1f; 
-                        // float factorEscala = 2.0f; // Ajusta esta sensibilidad
-
-                        // ⬅️ CLAVE: Acumular el giro táctil
-                        giroAcumuladoY += giroTactil * factorEscala;
-                        
-                        // Asegúrate de que no haya transform.Rotate() aquí.
-                    }
-                }
-            }
-        }
-    }
-    private void Correr(InputAction.CallbackContext context)
-    {
-        bool presionoShift = context.ReadValue<float>() > 0.5f;
         bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
-        bool puedeCorrer = presionoShift && !animator.GetBool("Cut_b");
+        bool cortar = animator.GetBool("Cut_b");
 
-        if (estaBailando)
+        // --- Control de velocidad y animación de correr ---
+        if (puedeCorrer && !estaBailando && !cortar)
         {
-            puedeCorrer = false;
+            if (!estaCorriendo)
+            {
+                estaCorriendo = true;
+                velocidadActual = velocidadBase * 2f;
+                animator.SetBool("Run_b", true);
+            }
         }
-
-        if (puedeCorrer && !estaCorriendo)
-        {
-            estaCorriendo = true;
-            velocidad = velocidadBase * 2f;
-            animator.SetBool("Run_b", true);
-
-            // La lógica de audio fue movida al método Mover()
-        }
-        else if (!puedeCorrer && estaCorriendo)
+        else if (estaCorriendo)
         {
             estaCorriendo = false;
-            velocidad = velocidadBase;
+            velocidadActual = velocidadBase;
             animator.SetBool("Run_b", false);
-
         }
+
+        // --- Movimiento relativo al jugador ---
+        Vector3 movimiento = new Vector3(inputMove.x, 0, inputMove.y);
+        Vector3 direccionMovimiento = transform.TransformDirection(movimiento);
+
+        transform.Translate(direccionMovimiento * velocidadActual * Time.deltaTime, Space.World);
+
+        // --- Rotación hacia dirección de movimiento ---
+        if (movimiento.magnitude > 0.1f)
+        {
+            Quaternion rotacion = Quaternion.LookRotation(direccionMovimiento);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotacion, Time.deltaTime * 10f);
+        }
+
+        // --- Audio ---
+        ActualizarAudioMovimiento(inputMove.magnitude, estaCorriendo);
+
+        // --- Animaciones (transiciones suaves) ---
+        float x = Mathf.Clamp(inputMove.x, -1f, 1f);
+        float y = Mathf.Clamp(inputMove.y, -1f, 1f);
+
+        // 🔹 Interpolamos los valores para evitar "saltos" bruscos
+        float suavizadoX = Mathf.Lerp(animator.GetFloat("Horizontal_f"), x, Time.deltaTime * 8f);
+        float suavizadoY = Mathf.Lerp(animator.GetFloat("Speed_f"), y, Time.deltaTime * 8f);
+
+        animator.SetFloat("Horizontal_f", suavizadoX);
+        animator.SetFloat("Speed_f", suavizadoY);
     }
-    private void ManejarCorrerConJoystick()
-    {
-        // Por defecto, asumimos que no se está presionando el botón de correr
-        bool runButtonIsPressed = false;
 
-        // 1. ITERAR POR TODOS LOS TOQUES
-        // Verifica si *cualquier* dedo está sobre el botón de Correr
-        if (Input.touchCount > 0)
+
+
+    private bool VerificarBotonCorrerTactil()
+    {
+        if (Input.touchCount == 0) return false;
+
+        foreach (Touch touch in Input.touches)
         {
-            foreach (Touch touch in Input.touches)
-            {
-                // Comprobar si el dedo está sobre el botón "RUN"
-                if (RectTransformUtility.RectangleContainsScreenPoint(runButtonRect, touch.position))
-                {
-                    // Si encontramos un dedo sobre el botón de Correr, marcamos como presionado
-                    runButtonIsPressed = true;
-                    break; // Salimos del bucle tan pronto como encontramos un dedo
-                }
-            }
+            if (RectTransformUtility.RectangleContainsScreenPoint(runButtonRect, touch.position))
+                return true;
         }
-        
-        // 2. APLICAR LÓGICA DE CORRER
-        // Condición: Se debe presionar el botón de correr *y* el jugador debe estar intentando moverse
-        bool shouldRun = runButtonIsPressed && inputMoveValue.magnitude > 0.1f;
-        
-        // Controlar el estado de correr
-        if (shouldRun)
+
+        return false;
+    }
+
+    private void ActualizarAudioMovimiento(float magnitudMovimiento, bool corriendo)
+    {
+        if (AudioManager.Instance == null) return;
+
+        bool seMueve = magnitudMovimiento > 0.1f;
+
+        if (seMueve)
         {
-            if (!isRunningByGesture)
+            if (corriendo)
             {
-                // Activa el estado de correr
-                isRunningByGesture = true;
-                velocidad = velocidadBase * 2f;
-                animator.SetBool("Run_b", true);
-                Debug.Log("🏃 Empiezas a correr (Táctil).");
+                AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
+                if (!AudioManager.Instance.IsPlaying(SoundType.PlayerRun))
+                    AudioManager.Instance.PlayLoop(SoundType.PlayerRun);
+            }
+            else
+            {
+                AudioManager.Instance.StopLoop(SoundType.PlayerRun);
+                if (!AudioManager.Instance.IsPlaying(SoundType.PlayerWalk))
+                    AudioManager.Instance.PlayLoop(SoundType.PlayerWalk);
             }
         }
         else
         {
-            // Si ya no se cumple la condición (soltó el botón o el joystick)
-            if (isRunningByGesture)
-            {
-                isRunningByGesture = false;
-                velocidad = velocidadBase;
-                animator.SetBool("Run_b", false);
-                Debug.Log("🚶 Dejas de correr (Táctil).");
-            }
+            AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
+            AudioManager.Instance.StopLoop(SoundType.PlayerRun);
         }
     }
+
+    public void Mirar(Vector2 inputLook)
+    {
+        float giroHorizontal = 0f;
+
+        // 🕹️ Rotación con gamepad o mouse
+        if (inputLook.magnitude > 0.1f)
+        {
+            giroHorizontal = inputLook.x;
+        }
+        // 📱 Rotación táctil
+        else if (Input.touchCount > 0)
+        {
+            foreach (Touch touch in Input.touches)
+            {
+                if (touch.position.x > Screen.width * 0.4f && touch.phase == UnityEngine.TouchPhase.Moved)
+                {
+                    giroHorizontal = -touch.deltaPosition.x * factorEscalaTactil * Time.deltaTime;
+                    break;
+                }
+            }
+        }
+
+        // 🔁 Aplicar rotación acumulada al personaje
+        giroAcumuladoY += giroHorizontal * velocidadGiro * Time.deltaTime;
+        transform.rotation = Quaternion.Euler(0f, giroAcumuladoY, 0f);
+
+        // 🎭 Control de animación de cabeza
+        bool cortando = animator.GetBool("Cut_b");
+        float objetivoCabeza = cortando ? 0f : giroHorizontal;
+        float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), objetivoCabeza, Time.deltaTime * 5f);
+        animator.SetFloat("Head_Horizontal_f", giroCabeza);
+    }
+
+    
     public void Cortar(InputAction.CallbackContext context)
     {
         bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
