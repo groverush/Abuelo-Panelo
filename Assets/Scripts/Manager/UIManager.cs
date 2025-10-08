@@ -1,6 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -44,36 +45,6 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
-    {
-        // Suscribirse para ocultar/mostrar la UI de móvil
-        if (InputDeviceDetector.Instance != null)
-        {
-            InputDeviceDetector.Instance.OnInputTypeChanged += OnInputChanged;
-            
-            // Inicializa la visibilidad de la UI móvil al cargar la escena
-            OnInputChanged(InputDeviceDetector.Instance.CurrentInputType);
-        }
-    }
-
-    private void OnDestroy()
-    {
-        // Desuscribirse al destruir
-        if (InputDeviceDetector.Instance != null)
-            InputDeviceDetector.Instance.OnInputTypeChanged -= OnInputChanged;
-    }
-
-    // Método para gestionar la visibilidad de la UI móvil según el input
-    private void OnInputChanged(InputDeviceDetector.InputType inputType)
-    {
-        // La UI móvil solo debe estar ACTIVA si el tipo de input es Touch
-        bool isTouch = inputType == InputDeviceDetector.InputType.Touch;
-        if (mobileUI != null)
-        {
-            mobileUI.SetActive(isTouch);
-        }
-    }
-    
     // ====================================================================
     // LÓGICA DE SELECCIÓN DE BOTONES CONDICIONAL
     // ====================================================================

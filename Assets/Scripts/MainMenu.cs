@@ -17,6 +17,11 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
+        // CONGELA LA DECISIÓN DEL INPUT ANTES DE CARGAR LA ESCENA
+        if (InputDeviceDetector.Instance != null)
+        {
+            InputDeviceDetector.Instance.StopDetection();
+        }
         // Detén la música del menú antes de cargar la nueva escena
         if (AudioManager.Instance != null)
         {
