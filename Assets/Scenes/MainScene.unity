@@ -4334,6 +4334,10 @@ PrefabInstance:
       value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
+      propertyPath: factorEscalaTactil
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: factorSensibilidad
       value: 0.5
       objectReference: {fileID: 0}
