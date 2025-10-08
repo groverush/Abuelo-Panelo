@@ -12,7 +12,9 @@ public class PlayerController : MonoBehaviour
     public float velocidad = 5f;
     public float velocidadGiro = 5f;
     public float capacidadCarga = 50f;
-    private float velocidadBase;
+    public float factorEscala = 2.0f; 
+    private float velocidadBase = 5f;
+    private float giroAcumuladoY = 0f;
     private float cargaActual = 0f;
     private int sugarcanesRecolectados = 0;
     private int cantidadEntregada = 0;
@@ -27,11 +29,14 @@ public class PlayerController : MonoBehaviour
     private Transform destinoDeposito;
     private GameObject botellaCercana = null;
     private GameObject barrilCercano;
+    public GameObject runButton; // Arrastra el botón "RUN" desde el Canvas aquí
+    private RectTransform runButtonRect;
 
     [Header("Input Actions")]
     private PlayerInput playerInput;
-    private InputAction moveAction;
-    private InputAction lookAction;
+
+    private Vector2 inputMoveValue;
+    private Vector2 inputLookValue;
     private InputAction runAction;
     private InputAction cutAction;
     private InputAction callAction;
@@ -43,8 +48,13 @@ public class PlayerController : MonoBehaviour
 
     public static bool EstaCortando { get; private set; }
     public static bool EstaBailando { get; private set; }
+    
+    [SerializeField] private float velocidadActual;
 
-    [SerializeField] private Collider macheteCollider;
+    [Header("Machete")]
+    [SerializeField] private Collider macheteCollider;    
+    [Header("Rotación Táctil")]
+    [SerializeField] float factorEscalaTactil = 2f;
 
     [Header("Referencias")]
     public Transform mano;
@@ -82,8 +92,6 @@ public class PlayerController : MonoBehaviour
 
         // Las referencias a las acciones se pueden obtener en Awake.
         // Las suscripciones deben ir en OnEnable.
-        moveAction = playerInput.actions["Move"];
-        lookAction = playerInput.actions["Look"];
         runAction = playerInput.actions["Run"];
         cutAction = playerInput.actions["Cut"];
         callAction = playerInput.actions["Call"];
@@ -101,15 +109,13 @@ public class PlayerController : MonoBehaviour
             animator = GetComponent<Animator>();
 
 
-        velocidadBase = velocidad; // Guardamos la velocidad original
+        velocidadActual = velocidadBase;
+        runButtonRect = runButton.GetComponent<RectTransform>();
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
     }
 
     private void OnEnable()
     {
-        // Suscribir todas las acciones cuando el objeto se activa
-        runAction.performed += Correr;
-        runAction.canceled += Correr;
 
         cutAction.performed += Cortar;
         cutAction.canceled += Cortar;
@@ -134,9 +140,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnDisable()
     {
-        // Desuscribir todas las acciones cuando el objeto se desactiva
-        runAction.performed -= Correr;
-        runAction.canceled -= Correr;
 
         cutAction.performed -= Cortar;
         cutAction.canceled -= Cortar;
@@ -159,105 +162,159 @@ public class PlayerController : MonoBehaviour
         recollectAction.canceled -= RecolectarBotella;
     }
 
-
     void FixedUpdate()
     {
-        Mover();
-        LlenarBotella();
+        Mover(inputMoveValue);
+        Mirar(inputLookValue);
+        ManejarLlenado();
+
+        transform.rotation = Quaternion.Euler(0f, giroAcumuladoY, 0f);
+    }
+     // Los métodos de callback del Input System
+    public void OnMove(InputValue value)
+    {
+        inputMoveValue = value.Get<Vector2>();
+    }
+
+    public void OnLook(InputValue value)
+    {
+        inputLookValue = value.Get<Vector2>();
+    }
+
+    public void Mover(Vector2 inputMove)
+    {
+        inputMoveValue = inputMove;
+
+        // --- Detectar correr ---
+        bool correrTeclado = playerInput.actions["Run"].IsPressed();
+        bool correrJoystick = VerificarBotonCorrerTactil();
+        bool puedeCorrer = (correrTeclado || correrJoystick) && inputMove.magnitude > 0.1f;
+
+        bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
+        bool cortar = animator.GetBool("Cut_b");
+
+        // --- Control de velocidad y animación de correr ---
+        if (puedeCorrer && !estaBailando && !cortar)
+        {
+            if (!estaCorriendo)
+            {
+                estaCorriendo = true;
+                velocidadActual = velocidadBase * 2f;
+                animator.SetBool("Run_b", true);
+            }
+        }
+        else if (estaCorriendo)
+        {
+            estaCorriendo = false;
+            velocidadActual = velocidadBase;
+            animator.SetBool("Run_b", false);
+        }
+
+        // --- Movimiento relativo al jugador ---
+        Vector3 movimiento = new Vector3(inputMove.x, 0, inputMove.y);
+        Vector3 direccionMovimiento = transform.TransformDirection(movimiento);
+
+        transform.Translate(direccionMovimiento * velocidadActual * Time.deltaTime, Space.World);
+
+        // --- Rotación hacia dirección de movimiento ---
+        if (movimiento.magnitude > 0.1f)
+        {
+            Quaternion rotacion = Quaternion.LookRotation(direccionMovimiento);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotacion, Time.deltaTime * 10f);
+        }
+
+        // --- Audio ---
+        ActualizarAudioMovimiento(inputMove.magnitude, estaCorriendo);
+
+        // --- Animaciones (transiciones suaves) ---
+        float x = Mathf.Clamp(inputMove.x, -1f, 1f);
+        float y = Mathf.Clamp(inputMove.y, -1f, 1f);
+
+        // 🔹 Interpolamos los valores para evitar "saltos" bruscos
+        float suavizadoX = Mathf.Lerp(animator.GetFloat("Horizontal_f"), x, Time.deltaTime * 8f);
+        float suavizadoY = Mathf.Lerp(animator.GetFloat("Speed_f"), y, Time.deltaTime * 8f);
+
+        animator.SetFloat("Horizontal_f", suavizadoX);
+        animator.SetFloat("Speed_f", suavizadoY);
     }
 
 
-    private void Mover()
+
+    private bool VerificarBotonCorrerTactil()
     {
-        // Movimiento con el stick izquierdo
-        Vector2 inputMove = playerInput.actions["Move"].ReadValue<Vector2>();
-        Vector3 movimiento = new Vector3(0, 0, inputMove.y); // Mueve solo hacia adelante y atrás
+        if (Input.touchCount == 0) return false;
 
-        // Rotación con el stick derecho
-        Vector2 inputLook = lookAction.ReadValue<Vector2>();
-        float giroHorizontal = inputLook.x; // El eje X del stick derecho para la rotación
-
-        // Aplica el movimiento y la rotación
-        transform.Translate(movimiento * velocidad * Time.deltaTime);
-        transform.Rotate(Vector3.up * Time.deltaTime * velocidadGiro * giroHorizontal);
-
-        bool isMoving = Mathf.Abs(movimiento.magnitude) > 0.1f;
-        bool isRunning = playerInput.actions["Run"].IsPressed();
-
-        // 🔊 Lógica de Audio
-        // Asegúrate de que AudioManager.Instance exista antes de usarlo.
-        if (AudioManager.Instance != null)
+        foreach (Touch touch in Input.touches)
         {
-            if (isMoving)
-            {
-                if (isRunning)
-                {
-                    // El personaje está corriendo
-                    AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
-                    if (!AudioManager.Instance.IsPlaying(SoundType.PlayerRun))
-                    {
-                        AudioManager.Instance.PlayLoop(SoundType.PlayerRun);
-                    }
-                }
-                else
-                {
-                    // El personaje está caminando
-                    AudioManager.Instance.StopLoop(SoundType.PlayerRun);
-                    if (!AudioManager.Instance.IsPlaying(SoundType.PlayerWalk))
-                    {
-                        AudioManager.Instance.PlayLoop(SoundType.PlayerWalk);
-                    }
-                }
-            }
-            else // El personaje está quieto
-            {
-                AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
-                AudioManager.Instance.StopLoop(SoundType.PlayerRun);
-            }
+            if (RectTransformUtility.RectangleContainsScreenPoint(runButtonRect, touch.position))
+                return true;
         }
 
-        // Actualiza el Animator con la velocidad de movimiento
-        float speed = Mathf.Clamp(Mathf.Abs(inputMove.y), 0, 0.5f);
-        animator.SetFloat("Speed_f", speed);
+        return false;
+    }
 
-        // La lógica de la cabeza del personaje también debe usar la nueva acción de rotación
-        if (!animator.GetBool("Cut_b"))
+    private void ActualizarAudioMovimiento(float magnitudMovimiento, bool corriendo)
+    {
+        if (AudioManager.Instance == null) return;
+
+        bool seMueve = magnitudMovimiento > 0.1f;
+
+        if (seMueve)
         {
-            float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), giroHorizontal, Time.deltaTime * 5f);
-            animator.SetFloat("Head_Horizontal_f", giroCabeza);
+            if (corriendo)
+            {
+                AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
+                if (!AudioManager.Instance.IsPlaying(SoundType.PlayerRun))
+                    AudioManager.Instance.PlayLoop(SoundType.PlayerRun);
+            }
+            else
+            {
+                AudioManager.Instance.StopLoop(SoundType.PlayerRun);
+                if (!AudioManager.Instance.IsPlaying(SoundType.PlayerWalk))
+                    AudioManager.Instance.PlayLoop(SoundType.PlayerWalk);
+            }
         }
         else
         {
-            animator.SetFloat("Head_Horizontal_f", 0f);
+            AudioManager.Instance.StopLoop(SoundType.PlayerWalk);
+            AudioManager.Instance.StopLoop(SoundType.PlayerRun);
         }
     }
-    private void Correr(InputAction.CallbackContext context)
+
+    public void Mirar(Vector2 inputLook)
     {
-        bool presionoShift = context.ReadValue<float>() > 0.5f;
-        bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
-        bool puedeCorrer = presionoShift && !animator.GetBool("Cut_b");
+        float giroHorizontal = 0f;
 
-        if (estaBailando)
+        // 🕹️ Rotación con gamepad o mouse
+        if (inputLook.magnitude > 0.1f)
         {
-            puedeCorrer = false;
+            giroHorizontal = inputLook.x;
+        }
+        // 📱 Rotación táctil
+        else if (Input.touchCount > 0)
+        {
+            foreach (Touch touch in Input.touches)
+            {
+                if (touch.position.x > Screen.width * 0.4f && touch.phase == UnityEngine.TouchPhase.Moved)
+                {
+                    giroHorizontal = -touch.deltaPosition.x * factorEscalaTactil * Time.deltaTime;
+                    break;
+                }
+            }
         }
 
-        if (puedeCorrer && !estaCorriendo)
-        {
-            estaCorriendo = true;
-            velocidad = velocidadBase * 2f;
-            animator.SetBool("Run_b", true);
+        // 🔁 Aplicar rotación acumulada al personaje
+        giroAcumuladoY += giroHorizontal * velocidadGiro * Time.deltaTime;
+        transform.rotation = Quaternion.Euler(0f, giroAcumuladoY, 0f);
 
-            // La lógica de audio fue movida al método Mover()
-        }
-        else if (!puedeCorrer && estaCorriendo)
-        {
-            estaCorriendo = false;
-            velocidad = velocidadBase;
-            animator.SetBool("Run_b", false);
-
-        }
+        // 🎭 Control de animación de cabeza
+        bool cortando = animator.GetBool("Cut_b");
+        float objetivoCabeza = cortando ? 0f : giroHorizontal;
+        float giroCabeza = Mathf.Lerp(animator.GetFloat("Head_Horizontal_f"), objetivoCabeza, Time.deltaTime * 5f);
+        animator.SetFloat("Head_Horizontal_f", giroCabeza);
     }
+
+    
     public void Cortar(InputAction.CallbackContext context)
     {
         bool estaBailando = animator.GetBool("Dance_b") || animator.GetBool("Danceb_b");
@@ -269,7 +326,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Cut_b", true);
             EstaCortando = true;
             macheteCollider.enabled = true;
-            
+
             InvokeRepeating(nameof(RealizarCorte), 0f, 1.5f);
         }
         else if (context.canceled)
@@ -309,6 +366,45 @@ public class PlayerController : MonoBehaviour
         else
         {
             Debug.Log("🚫 Límite de sugarcanes alcanzado.");
+        }
+    }
+    public void OnHoldButtonPressed()
+    {
+        Debug.Log("Hold button pressed!");
+        // Add your logic to start the 'hold' animation or action here.
+        if (animator != null)
+        {
+            animator.SetBool("Holding", true);
+        }
+    }
+
+    public void OnHoldButtonReleased()
+    {
+        Debug.Log("Hold button released!");
+        // Add your logic to end the 'hold' animation or action here.
+        if (animator != null)
+        {
+            animator.SetBool("Holding", false);
+        }
+    }
+
+    public void OnCutButtonPressed()
+    {
+        Debug.Log("Cut button pressed!");
+        // Add your logic to start the 'cut' animation or action here.
+        if (animator != null)
+        {
+            animator.SetBool("Cutting", true);
+        }
+    }
+
+    public void OnCutButtonReleased()
+    {
+        Debug.Log("Cut button released!");
+        // Add your logic to end the 'cut' animation or action here.
+        if (animator != null)
+        {
+            animator.SetBool("Cutting", false);
         }
     }
 
@@ -390,7 +486,7 @@ public class PlayerController : MonoBehaviour
         {
             estaSosteniendoBotella = false;
 
-            if (estaLlenandoBotella)
+            if (estaLlenandoBotella && duracionLlenado > 0f)
             {
                 CancelarLlenadoBotella();
                 SoltarYRomperBotella();
@@ -431,7 +527,7 @@ public class PlayerController : MonoBehaviour
 
             Destroy(botellaCercana);
             AudioManager.Instance.PlayOneShot(SoundType.BottleRecollected);
-            UIManager.Instance.MostrarTextoInteraccion(false, "");
+            UIManager.Instance.MostrarTextoRecoger(false, "");
             botellaCercana = null;
 
             estaSosteniendoBotella = true;
@@ -472,27 +568,39 @@ public class PlayerController : MonoBehaviour
         Debug.Log("💥 Botella soltada y rota.");
     }
 
-    private void LlenarBotella()
+    private void ManejarLlenado()
+{
+    // Si tienes una botella en la mano y estás cerca de un barril...
+    if (objetoTransportado != null && barrilCercano != null && !estaLlenandoBotella)
     {
-        if (estaLlenandoBotella || objetoTransportado == null || barrilCercano == null) return;
-
         Item item = objetoTransportado.GetComponent<Item>();
         if (item != null && item.tipo == "Botella")
         {
-            Barril barril = barrilCercano.GetComponent<Barril>();
-            if (barril != null && barril.canasActuales >= 5)
+            // ... y el jugador presiona el botón para llenar
+            if (recollectAction.IsPressed())
             {
-                estaLlenandoBotella = true;
-                barrilEnProceso = barril;
-                cañasAntesDeLlenado = barril.canasActuales;
-
-                UIManager.Instance.MostrarTextoInteraccion(true, "Llenando botella...");
-                AudioManager.Instance.PlayOneShot(SoundType.BottleFilled);
-
-                llenadoCoroutine = StartCoroutine(FinalizarLlenadoBotella(barril));
+                Barril barril = barrilCercano.GetComponent<Barril>();
+                if (barril != null && barril.canasActuales >= 5)
+                {
+                    // Iniciar el llenado
+                    estaLlenandoBotella = true;
+                    barrilEnProceso = barril;
+                    cañasAntesDeLlenado = barril.canasActuales;
+                    UIManager.Instance.MostrarTextoLlenado(true, "Llenando botella...");
+                    AudioManager.Instance.PlayOneShot(SoundType.BottleFilled);
+                    llenadoCoroutine = StartCoroutine(FinalizarLlenadoBotella(barril));
+                }
             }
         }
     }
+
+    // Lógica para cancelar el llenado si te alejas del barril
+    if (estaLlenandoBotella && barrilCercano == null)
+    {
+        Debug.Log("⛔ Jugador se alejó del barril, cancelando llenado.");
+        CancelarLlenadoBotella();
+    }
+}
 
     private IEnumerator FinalizarLlenadoBotella(Barril barril)
     {
@@ -527,7 +635,7 @@ public class PlayerController : MonoBehaviour
             nuevoItem.tipo = "BotellaLlena";
 
         // Ocultar texto
-        UIManager.Instance.MostrarTextoInteraccion(false, "");
+        UIManager.Instance.MostrarTextoLlenado(false, "");
 
         // Reactivar procesamiento si es necesario
         Maquina maquina = FindFirstObjectByType<Maquina>();
@@ -559,7 +667,7 @@ public class PlayerController : MonoBehaviour
         estaLlenandoBotella = false;
         barrilEnProceso = null;
 
-        UIManager.Instance.MostrarTextoInteraccion(false, "");
+        UIManager.Instance.MostrarTextoLlenado(false, "");
         Debug.Log("⛔ Llenado de botella cancelado.");
     }
 
@@ -583,7 +691,7 @@ public class PlayerController : MonoBehaviour
                 Destroy(botella);
                 objetoTransportado = null;
 
-                UIManager.Instance.MostrarTextoInteraccion(false, "");
+                UIManager.Instance.MostrarTextoRecoger(false, "");
 
                 if (cantidadEntregada == posicionesEntrega.Length)
                 {
@@ -694,7 +802,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Item"))
         {
             botellaCercana = other.gameObject;
-            UIManager.Instance.MostrarTextoInteraccion(true, "Manten U para recoger una botella");
+            UIManager.Instance.MostrarTextoRecoger(true, "Recoger Botella");
         }
         if (other.CompareTag("Barril"))
         {
@@ -703,7 +811,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("MesaEntrega"))
         {
             estaCercaDeLaMesa = true;
-            UIManager.Instance.MostrarTextoInteraccion(true, "Suelta U para entregar el jarabe");
+            UIManager.Instance.MostrarTextoEntregarJarabe(true, "Entregar Jarabe");
         }
 
     }
@@ -719,17 +827,17 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Item") && other.gameObject == botellaCercana)
         {
             botellaCercana = null;
-            UIManager.Instance.MostrarTextoInteraccion(false, "No hay objetos cerca");
+            UIManager.Instance.MostrarTextoRecoger(false, "No hay objetos cerca");
         }
         if (other.CompareTag("Barril"))
         {
             barrilCercano = null;
-            UIManager.Instance.MostrarTextoInteraccion(false, "");
+            UIManager.Instance.MostrarTextoLlenado(false, "");
         }
         if (other.CompareTag("MesaEntrega"))
         {
             estaCercaDeLaMesa = false;
-            UIManager.Instance.MostrarTextoInteraccion(false, "");
+            UIManager.Instance.MostrarTextoEntregarJarabe(false, "");
         }
     }
 

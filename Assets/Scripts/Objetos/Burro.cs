@@ -74,7 +74,7 @@ public class Burro : MonoBehaviour
                 float distanciaJugador = Vector3.Distance(transform.position, jugadorCercano.transform.position);
                 if (distanciaJugador > 3f)
                 {
-                    UIManager.Instance.MostrarTextoInteraccion(false, "No hay objeto cerca");
+                    UIManager.Instance.MostrarTextoEntregar(false, "No hay objeto cerca");
                     jugadorCercano.SetCercaniaBurro(false);
                     jugadorCercano = null;
                 }
@@ -148,7 +148,7 @@ public class Burro : MonoBehaviour
         {
 
             Debug.Log($"Entró al trigger: {other.gameObject.name}");
-            UIManager.Instance.MostrarTextoInteraccion(true, "Presiona E para depositar en el burro");
+            UIManager.Instance.MostrarTextoEntregar(true, "Entregar");
 
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
@@ -171,7 +171,7 @@ public class Burro : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            UIManager.Instance.MostrarTextoInteraccion(false, "No hay objeto cerca");
+            UIManager.Instance.MostrarTextoEntregar(false, "No hay objeto cerca");
 
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
