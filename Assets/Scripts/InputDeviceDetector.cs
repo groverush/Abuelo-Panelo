@@ -1,72 +1,115 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Controls;
 
 public class InputDeviceDetector : MonoBehaviour
 {
-    public static InputDeviceDetector Instance { get; private set; }
-
-    public enum InputType { KeyboardMouse, Gamepad, Touch }
-
+    public static InputDeviceDetector Instance;
+    public enum InputType { KeyboardMouse, Controller, Touch }
     public InputType CurrentInputType { get; private set; }
+    public event Action<InputType> OnInputTypeChanged;
 
-    public delegate void InputTypeChanged(InputType inputType);
-    public event InputTypeChanged OnInputTypeChanged;
+    private bool detectionActive = true; // Controla si el script está escuchando la primera pulsación
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
+        // Implementación del Singleton (asegura que solo haya una instancia)
+        if (Instance != null && Instance != this) 
+        { 
+            Destroy(gameObject); 
+            return; 
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Detectar dispositivo cuando se conecta o desconecta
-        InputSystem.onDeviceChange += OnDeviceChange;
-        InputSystem.onEvent += OnInputEvent;
-
-        // Comprobar tipo inicial
-        CheckCurrentInput();
+        // 1. FORZAR EL TIPO DE INPUT INICIAL A TOUCH (La UI móvil está visible por defecto)
+        SetInputType(InputType.Touch);
+        detectionActive = true; 
     }
 
-    private void OnDestroy()
+    private void OnEnable()
     {
-        InputSystem.onDeviceChange -= OnDeviceChange;
+        // Suscribirse al evento de input de bajo nivel para detectar la primera pulsación
+        InputSystem.onEvent += OnInputEvent;
+        // Si el objeto se reactiva, reactivar la detección
+        if (CurrentInputType == InputType.Touch)
+        {
+             detectionActive = true; 
+        }
+    }
+
+    private void OnDisable()
+    {
         InputSystem.onEvent -= OnInputEvent;
     }
-
-    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    
+    // NUEVO MÉTODO: Llamado desde MainMenu.cs para congelar la decisión
+    public void StopDetection()
     {
-        if (change == InputDeviceChange.Added || change == InputDeviceChange.Reconnected)
-            CheckCurrentInput();
+        detectionActive = false;
+        // Opcional: Desuscribirse para ahorrar rendimiento, aunque la bandera es suficiente.
+        // InputSystem.onEvent -= OnInputEvent; 
     }
 
     private void OnInputEvent(InputEventPtr eventPtr, InputDevice device)
     {
-        if (eventPtr.IsA<StateEvent>() || eventPtr.IsA<DeltaStateEvent>())
-            CheckCurrentInput(device);
+        // Dejar de procesar si ya se tomó una decisión (por ejemplo, saliendo del menú)
+        if (!detectionActive) return; 
+        
+        // Solo escuchamos si el estado actual es Touch (esperando una anulación de PC/Gamepad)
+        if (CurrentInputType == InputType.Touch)
+        {
+            if (eventPtr.IsA<StateEvent>() || eventPtr.IsA<DeltaStateEvent>())
+            {
+                if (device is Keyboard || device is Mouse || device is Gamepad)
+                {
+                    if (WasAnyButtonPressed(device))
+                    {
+                        // 2. Cambiar el tipo de input al detectar PC/Gamepad
+                        if (device is Keyboard || device is Mouse)
+                        {
+                            SetInputType(InputType.KeyboardMouse);
+                        }
+                        else if (device is Gamepad)
+                        {
+                            SetInputType(InputType.Controller);
+                        }
+                        
+                        // 3. Congelamos la detección inmediatamente (incluso en el menú)
+                        StopDetection(); 
+                    }
+                }
+            }
+        }
+    }
+    
+    private bool WasAnyButtonPressed(InputDevice device)
+    {
+        // Chequeo robusto de si hubo una pulsación o movimiento de joystick/ratón
+        foreach (var control in device.allControls)
+        {
+            // Chequea botones (teclas, botones de gamepad/ratón)
+            if (control is ButtonControl button && button.wasPressedThisFrame)
+            {
+                return true;
+            }
+            // Chequea sticks (movimiento significativo)
+            if (control is StickControl stick && stick.ReadValue().sqrMagnitude > 0.01f)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private void CheckCurrentInput(InputDevice device = null)
+
+    private void SetInputType(InputType newType)
     {
-        InputType detectedType = InputType.KeyboardMouse;
-
-        if (device == null)
-            device = InputSystem.devices.Count > 0 ? InputSystem.devices[0] : null;
-
-        if (device is Gamepad)
-            detectedType = InputType.Gamepad;
-        else if (device is Pointer || device is Keyboard)
-            detectedType = InputType.KeyboardMouse;
-        else if (device is Touchscreen)
-            detectedType = InputType.Touch;
-
-        if (detectedType != CurrentInputType)
-        {
-            CurrentInputType = detectedType;
-            OnInputTypeChanged?.Invoke(CurrentInputType);
-        }
+        if (newType == CurrentInputType) return;
+        CurrentInputType = newType;
+        OnInputTypeChanged?.Invoke(newType);
+        Debug.Log($"Input cambiado a: {newType}");
     }
 }
