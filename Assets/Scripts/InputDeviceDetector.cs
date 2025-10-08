@@ -1,14 +1,17 @@
 using UnityEngine;
-using System;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 public class InputDeviceDetector : MonoBehaviour
 {
-    public static InputDeviceDetector Instance;
+    public static InputDeviceDetector Instance { get; private set; }
 
-    public enum InputType { KeyboardMouse, Controller, Touch }
+    public enum InputType { KeyboardMouse, Gamepad, Touch }
+
     public InputType CurrentInputType { get; private set; }
 
-    public event Action<InputType> OnInputTypeChanged;
+    public delegate void InputTypeChanged(InputType inputType);
+    public event InputTypeChanged OnInputTypeChanged;
 
     private void Awake()
     {
@@ -17,32 +20,53 @@ public class InputDeviceDetector : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        // Detectar dispositivo cuando se conecta o desconecta
+        InputSystem.onDeviceChange += OnDeviceChange;
+        InputSystem.onEvent += OnInputEvent;
+
+        // Comprobar tipo inicial
+        CheckCurrentInput();
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        DetectInputDevice();
+        InputSystem.onDeviceChange -= OnDeviceChange;
+        InputSystem.onEvent -= OnInputEvent;
     }
 
-    private void DetectInputDevice()
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
-        if (Input.touchCount > 0)
-            SetInputType(InputType.Touch);
-        else if (Input.GetJoystickNames().Length > 0 && !string.IsNullOrEmpty(Input.GetJoystickNames()[0]))
-            SetInputType(InputType.Controller);
-        else if (Input.anyKeyDown)
-            SetInputType(InputType.KeyboardMouse);
+        if (change == InputDeviceChange.Added || change == InputDeviceChange.Reconnected)
+            CheckCurrentInput();
     }
 
-    private void SetInputType(InputType newType)
+    private void OnInputEvent(InputEventPtr eventPtr, InputDevice device)
     {
-        if (newType == CurrentInputType) return;
+        if (eventPtr.IsA<StateEvent>() || eventPtr.IsA<DeltaStateEvent>())
+            CheckCurrentInput(device);
+    }
 
-        CurrentInputType = newType;
-        OnInputTypeChanged?.Invoke(newType);
-        Debug.Log($"Input cambiado a: {newType}");
+    private void CheckCurrentInput(InputDevice device = null)
+    {
+        InputType detectedType = InputType.KeyboardMouse;
+
+        if (device == null)
+            device = InputSystem.devices.Count > 0 ? InputSystem.devices[0] : null;
+
+        if (device is Gamepad)
+            detectedType = InputType.Gamepad;
+        else if (device is Pointer || device is Keyboard)
+            detectedType = InputType.KeyboardMouse;
+        else if (device is Touchscreen)
+            detectedType = InputType.Touch;
+
+        if (detectedType != CurrentInputType)
+        {
+            CurrentInputType = detectedType;
+            OnInputTypeChanged?.Invoke(CurrentInputType);
+        }
     }
 }
