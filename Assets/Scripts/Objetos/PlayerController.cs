@@ -25,6 +25,7 @@ public class PlayerController : MonoBehaviour
     private bool estaCorriendo = false;
     private bool estaCercaDeLaMesa = false;
 
+    private Rigidbody rb;
     private Sugarcane sugarcaneActual;
     private Transform destinoDeposito;
     private GameObject botellaCercana = null;
@@ -109,6 +110,7 @@ public class PlayerController : MonoBehaviour
             animator = GetComponent<Animator>();
 
 
+        rb = GetComponent<Rigidbody>();
         velocidadActual = velocidadBase;
         runButtonRect = runButton.GetComponent<RectTransform>();
         UIManager.Instance.ActualizarCanaJugador(sugarcanesRecolectados, maxSugarcanes);
@@ -214,7 +216,7 @@ public class PlayerController : MonoBehaviour
         Vector3 movimiento = new Vector3(inputMove.x, 0, inputMove.y);
         Vector3 direccionMovimiento = transform.TransformDirection(movimiento);
 
-        transform.Translate(direccionMovimiento * velocidadActual * Time.deltaTime, Space.World);
+        rb.MovePosition(rb.position + direccionMovimiento * velocidadActual * Time.deltaTime);
 
         // --- Rotación hacia dirección de movimiento ---
         if (movimiento.magnitude > 0.1f)

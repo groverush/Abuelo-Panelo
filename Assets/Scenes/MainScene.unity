@@ -4311,7 +4311,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5667749474690138499, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: m_Constraints
-      value: 122
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: animal
@@ -4328,6 +4328,10 @@ PrefabInstance:
     - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: factorEscala
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
+      propertyPath: velocidadGiro
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8268350720218349289, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: factorSensibilidad
@@ -4359,7 +4363,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8767439575859258497, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.19
+      value: 5.3
       objectReference: {fileID: 0}
     - target: {fileID: 8767439575859258497, guid: 44b051f54e94efa41b341432f00ac6ad, type: 3}
       propertyPath: m_LocalPosition.z
